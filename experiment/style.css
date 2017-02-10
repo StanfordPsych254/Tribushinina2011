@@ -149,3 +149,11 @@ td {
   margin-left: .5em;
   display: none;
 }
+
+.image_row td{
+	vertical-align: bottom;
+}
+
+.image_row img {
+	transform: scale(0.8);
+}

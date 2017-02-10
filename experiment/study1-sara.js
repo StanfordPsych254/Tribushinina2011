@@ -50,45 +50,68 @@ $.urlParam = function(name){
   }
 }
 
+var sum = [1, 2, 3].reduce(add, 0);
+
+function add(a, b) {
+    return a + b;
+}
+
+console.log(sum);
 // ############################## Configuration settings ##############################
 var stim_set = [];
-//var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
-
-var nouns = ['baby', 'balloon'];
+var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
 var num_trials = 48;
 for (var i = 0; i < nouns.length; i++){
-	for (var j = 0; j < dirs.length; j++){
-		for (var k = 0; k < adjs.length; k++){
-			var stim_element = {noun: nouns[i], dir: dirs[j], adj: adjs[k]};
+	for (var j = 0; j < dirs.length; i++){
+		for (var k = 0; k < adjs.length; i++){
+			var stim_element = [nouns[i], dirs[j], adjs[k]];
 			stim_set.push(stim_element);
 		}
 	} 
 }
 
-var NUM_PICS = 7;
-
-function getImageFiles(elem) {
-	var pic_set = [];
-  if (elem.dir  == 'asc') {
-			for (var j = 1; j <= NUM_PICS; j++) {
-				pic_set.push('images-sara/' + elem.noun + '_' + j + '.png');
+var faces = [];
+var NUM_TRIALS_PER_DFT = 3;
+for (var i = 0; i < NUM_TRIALS_PER_DFT; i++) {
+  for (var dft = 0; dft <= 100; dft += 10) {
+    faces.push(dft);
+  }
+}
+var pic_set = [];
+function buildStimSet(stim_set) {
+	for(var i = 0; i < stim_set.length; i++){
+		if (stim_set[i][1]  == 'asc') {
+			for (var j = 0; j < 7; i++) {
+				pic_set.push('images-sara/' + stim_set[i][0] + '_' + j + '.png');
 			}
 			
 		} else {
-			for (var j = NUM_PICS; j > 0; j--){
-				pic_set.push('images-sara/' + elem.noun + '_' + j + '.png');
+			for (var j = num_pics; j > 0; i--){
+				pic_set.push('images-sara/' + stim_set[i][0] + '_' + j + '.png');
 			}
 		}
-
-  return pic_set;
+		
+	}
+  return pic_set
 }
 
+faces = shuffle(faces);
 
-stim_set = shuffle(stim_set);
-var totalTrials = stim_set.length;
+var totalTrials = faces.length;
 
+// Initialize trial to trustworthy or attractive
+var type = Math.random();
+if (type >= 0.5) {
+  type = 'attractive';
+  $('.attractiveness-instr').show();
+  $('.trustworthy-instr').hide();
+} else {
+  type = 'trustworthy';
+  $('.attractiveness-instr').hide();
+  $('.trustworthy-instr').show();
+}
 
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
@@ -98,13 +121,14 @@ var experiment = {
 
     // The object to be submitted.
     data: {
-
-      noun: [],
-      ratings: [],
+      type: [],
+      age: [],
+      gender: [],
+      education: [],
+      race: [],
+      face: [],
+      rating: [],
       elapsed_ms: [],
-	  dir: [],
-	  adj: [],
-	  num_checked: [],
       num_errors: [],
       expt_aim: [],
       expt_gen: [],
@@ -130,24 +154,25 @@ var experiment = {
       var elapsed = Date.now() - experiment.start_ms;
 
       //Array of radio buttons
-      var responses = [];
-	  $(".judgment_box").each(function(){
-		if($(this).is(':checked')){
-			responses.push($(this).attr("value"));
-		}
-	  });
-	  
-	  if (responses.length > 0) {
-		response_logged = true;
-		experiment.data.elapsed_ms.push(elapsed);
-		experiment.data.ratings.push(responses);
-	  }
+      var radio = document.getElementsByName("judgment");
+
+      // Loop through radio buttons
+      for (i = 0; i < radio.length; i++) {
+        if (radio[i].checked) {
+          experiment.data.rating.push(radio[i].value);
+          experiment.data.elapsed_ms.push(elapsed);
+          experiment.data.num_errors.push(experiment.num_errors);
+          response_logged = true;
+        }
+      }
 
       if (response_logged) {
         nextButton.blur();
 
-        // uncheck check boxes
-        $(".judgment_box").attr("checked", false);
+        // uncheck radio buttons
+        for (i = 0; i < radio.length; i++) {
+          radio[i].checked = false
+        }
 
         $('#stage-content').hide();
         experiment.next();
@@ -165,7 +190,7 @@ var experiment = {
       if (window.self == window.top | turk.workerId.length > 0) {
           $("#testMessage").html('');   // clear the test message
           $("#prog").attr("style","width:" +
-              String(100 * (1 - stim_set.length/totalTrials)) + "%")
+              String(100 * (1 - faces.length/totalTrials)) + "%")
           // style="width:progressTotal%"
           window.setTimeout(function() {
             $('#stage-content').show();
@@ -175,26 +200,20 @@ var experiment = {
 
           // Get the current trial - <code>shift()</code> removes the first element
           // select from our scales array and stop exp after we've exhausted all the domains
-          var elem = stim_set.shift();
+          var face_dft = faces.shift();
 
           //If the current trial is undefined, call the end function.
-          if (typeof elem == "undefined") {
+          if (typeof face_dft == "undefined") {
             return experiment.debriefing();
           }
 
           // Display the sentence stimuli
-          var image_filenames = getImageFiles(elem);
-		  for (i = 1; i<= NUM_PICS; i++){
-			  var file_name = image_filenames.shift();
-			  $("#noun_" + i).attr('src', file_name);
-		  }
-          
+          var face_filename = getFaceFile(face_dft);
+          $("#face").attr('src', face_filename);
 
 
           // push all relevant variables into data object
-          experiment.data.noun.push(elem.noun);
-		  experiment.data.dir.push(elem.dir);
-		  experiment.data.adj.push(elem.adj);
+          experiment.data.face.push(face_dft);
           experiment.data.window_width.push($(window).width());
           experiment.data.window_height.push($(window).height());
 
@@ -209,9 +228,18 @@ var experiment = {
 
     // submitcomments function
     submit_comments: function() {
-     
+      var races = document.getElementsByName("race[]");
+      for (i = 0; i < races.length; i++) {
+        if (races[i].checked) {
+          experiment.data.race.push(races[i].value);
+        }
+      }
+      experiment.data.age.push(document.getElementById("age").value);
+      experiment.data.gender.push(document.getElementById("gender").value);
+      experiment.data.education.push(document.getElementById("education").value);
       experiment.data.expt_aim.push(document.getElementById("expthoughts").value);
       experiment.data.expt_gen.push(document.getElementById("expcomments").value);
+      experiment.data.type.push(type);
       experiment.data.user_agent.push(window.navigator.userAgent);
       experiment.end();
     }
@@ -219,9 +247,24 @@ var experiment = {
 
 $(function() {
   $('form#demographics').validate({
+    rules: {
+      "age": "required",
+      "gender": "required",
+      "education": "required",
+      "race[]": "required",
+    },
+    messages: {
+      "age": "Please choose an option",
+      "gender": "Please choose an option",
+      "education": "Please choose an option",
+    },
     submitHandler: experiment.submit_comments
   });
-  /* experiment.next();
-  experiment.next(); */
+  $('#race_group input[value=no_answer]').click(function() {
+    $('#race_group input').not('input[value=no_answer]').attr('checked', false);
+  });
+  $('#race_group input').not('input[value=no_answer]').click(function() {
+    $('#race_group input[value=no_answer]').attr('checked', false);
+  });
 });
 
