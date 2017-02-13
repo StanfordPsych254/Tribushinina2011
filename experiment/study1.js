@@ -52,9 +52,9 @@ $.urlParam = function(name){
 
 // ############################## Configuration settings ##############################
 var stim_set = [];
-//var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
+var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
-var nouns = ['baby', 'balloon'];
+//var nouns = ['baby', 'balloon'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
 var num_trials = 48;
@@ -87,6 +87,7 @@ function getImageFiles(elem) {
 
 
 stim_set = shuffle(stim_set);
+stim_set.unshift({noun:"pretty", dir: "asc", adj: "pretty"}, {noun:"car", dir: "desc", adj:"ugly"});
 var totalTrials = stim_set.length;
 
 
@@ -106,6 +107,7 @@ var experiment = {
 	  adj: [],
 	  num_checked: [],
       num_errors: [],
+	  lang: [],
       expt_aim: [],
       expt_gen: [],
       user_agent: [],
@@ -129,7 +131,7 @@ var experiment = {
       var response_logged = false;
       var elapsed = Date.now() - experiment.start_ms;
 
-      //Array of radio buttons
+      //Array of check boxes
       var responses = [];
 	  $(".judgment_box").each(function(){
 		if($(this).is(':checked')){
@@ -188,8 +190,55 @@ var experiment = {
 			  var file_name = image_filenames.shift();
 			  $("#noun_" + i).attr('src', file_name);
 		  }
-          
-
+          var beg = "<h3><b> Which ";
+		  switch (elem.noun){
+			  case "baby":
+			  var current_noun = "babies";
+			  break;
+			  case "balloon":
+			  var current_noun = "balloons";
+			  break;
+			  case "cake":
+			  var current_noun = "cakes";
+			  break;
+			  case "chick":
+			  var current_noun = "chicks";
+			  break;
+			  case "elephant":
+			  var current_noun = "elephants";
+			  break;
+			  case "gnome":
+			  var current_noun = "gnomes";
+			  break;
+			  case "hippo":
+			  var current_noun = "hippos";
+			  break;
+			  case "house":
+			  var current_noun = "houses";
+			  break;
+			  case "monkey":
+			  var current_noun = "monkies";
+			  break;
+			  case "mouse":
+			  var current_noun = "mice";
+			  break;
+			  case "plane":
+			  var current_noun = "planes";
+			  break;
+			  case "umbrella":
+			  var current_noun = "umbrellas";
+			  break;
+			  case "pretty":
+			  var current_noun = "balloons";
+			  break;
+			  case "car":
+			  var current_noun = "cars";
+			  
+		  }
+		  var middle = " do you find ";
+		  var conc = "?</b></h3>"
+		  var current_stimulus = beg + current_noun + middle + elem.adj + conc;
+		  $('#currentStim').html(current_stimulus);
 
           // push all relevant variables into data object
           experiment.data.noun.push(elem.noun);
@@ -209,7 +258,7 @@ var experiment = {
 
     // submitcomments function
     submit_comments: function() {
-     
+	  experiment.data.lang.push(document.getElementById("homelang").value);
       experiment.data.expt_aim.push(document.getElementById("expthoughts").value);
       experiment.data.expt_gen.push(document.getElementById("expcomments").value);
       experiment.data.user_agent.push(window.navigator.userAgent);

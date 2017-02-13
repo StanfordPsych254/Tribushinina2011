@@ -66,19 +66,13 @@ var num_trials = 48;
 for (var i = 0; i < nouns.length; i++){
 	for (var j = 0; j < dirs.length; i++){
 		for (var k = 0; k < adjs.length; i++){
-			var stim_element = [nouns[i], dirs[j], adjs[k]];
+			var stim_element = {noun: nouns[i], dir: dirs[j], adj: adjs[k]};
 			stim_set.push(stim_element);
 		}
 	} 
 }
+stim_set.shuffle();
 
-var faces = [];
-var NUM_TRIALS_PER_DFT = 3;
-for (var i = 0; i < NUM_TRIALS_PER_DFT; i++) {
-  for (var dft = 0; dft <= 100; dft += 10) {
-    faces.push(dft);
-  }
-}
 var pic_set = [];
 function buildStimSet(stim_set) {
 	for(var i = 0; i < stim_set.length; i++){
