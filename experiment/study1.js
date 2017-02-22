@@ -248,7 +248,9 @@ var experiment = {
 		  var conc = "?</b></h3>"
 		  var current_stimulus = beg + current_noun + middle + elem.adj + conc;
 		  $('#currentStim').html(current_stimulus); */
-		  var audio = new Audio();
+		 
+		nextButton.focus();
+		var audio = new Audio();
 		audio.loop = false;
 		audio.addEventListener("canplaythrough", function() {audio.play();});
 
