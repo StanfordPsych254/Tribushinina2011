@@ -52,9 +52,9 @@ $.urlParam = function(name){
 
 // ############################## Configuration settings ##############################
 var stim_set = [];
-//var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
+var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
-var nouns = ['baby', 'balloon'];
+//var nouns = ['baby', 'balloon'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
 var verb = ['seem', 'find', 'are'];
@@ -95,6 +95,8 @@ function getAudioFile(elem) {
 	var audio_name = 'audio/' + elem.noun + '_' + elem.adj + '_' + elem.vb + '.ogg';
 	return audio_name;
 }
+
+
 
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
@@ -197,7 +199,7 @@ var experiment = {
 			  var file_name = image_filenames.shift();
 			  $("#noun_" + i).attr('src', file_name);
 		  }
-          var beg = "<h3><b> Which ";
+/*           var beg = "<h3><b> Which ";
 		  switch (elem.noun){
 			  case "baby":
 			  var current_noun = "babies";
@@ -245,7 +247,24 @@ var experiment = {
 		  var middle = " do you find ";
 		  var conc = "?</b></h3>"
 		  var current_stimulus = beg + current_noun + middle + elem.adj + conc;
-		  $('#currentStim').html(current_stimulus);
+		  $('#currentStim').html(current_stimulus); */
+		  var audio = new Audio();
+		audio.loop = false;
+		audio.addEventListener("canplaythrough", function() {audio.play();});
+
+//to load a file; soundFileSource is the filename of the sound file you want to play
+audio.setAttribute("src", getAudioFile(elem));
+audio.load();
+doSomethingAfterAudio();
+
+//do something when audio ended - this checks in every 50ms once triggered and performs an action when the audio has finished playing
+function doSomethingAfterAudio() {
+    if (audio.ended) {
+        nextButton.focus();
+    } else {
+        setTimeout(function() {doSomethingAfterAudio();}, 50);
+    };
+};
 
           // push all relevant variables into data object
           experiment.data.noun.push(elem.noun);
