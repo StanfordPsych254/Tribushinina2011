@@ -249,7 +249,8 @@ var experiment = {
 		  var current_stimulus = beg + current_noun + middle + elem.adj + conc;
 		  $('#currentStim').html(current_stimulus); */
 		 
-		nextButton.focus();
+		
+		$("#nextButton").prop("disabled", true);
 		var audio = new Audio();
 		audio.loop = false;
 		audio.addEventListener("canplaythrough", function() {audio.play();});
@@ -262,7 +263,7 @@ doSomethingAfterAudio();
 //do something when audio ended - this checks in every 50ms once triggered and performs an action when the audio has finished playing
 function doSomethingAfterAudio() {
     if (audio.ended) {
-        nextButton.focus();
+         $("#nextButton").removeAttr('disabled');
     } else {
         setTimeout(function() {doSomethingAfterAudio();}, 50);
     };
