@@ -52,16 +52,18 @@ $.urlParam = function(name){
 
 // ############################## Configuration settings ##############################
 var stim_set = [];
-var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
+//var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
-//var nouns = ['baby', 'balloon'];
+var nouns = ['baby', 'balloon'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
-var num_trials = 48;
+var verb = ['seem', 'find', 'are'];
+
+var trial_verb = shuffle(verb).shift();
 for (var i = 0; i < nouns.length; i++){
 	for (var j = 0; j < dirs.length; j++){
 		for (var k = 0; k < adjs.length; k++){
-			var stim_element = {noun: nouns[i], dir: dirs[j], adj: adjs[k]};
+			var stim_element = {noun: nouns[i], dir: dirs[j], adj: adjs[k], vb: trial_verb};
 			stim_set.push(stim_element);
 		}
 	} 
@@ -87,9 +89,12 @@ function getImageFiles(elem) {
 
 
 stim_set = shuffle(stim_set);
-stim_set.unshift({noun:"pretty", dir: "asc", adj: "pretty"}, {noun:"car", dir: "desc", adj:"ugly"});
+stim_set.unshift({noun:"pretty", dir: "asc", adj: "pretty", vb: trial_verb}, {noun:"car", dir: "desc", adj:"ugly", vb: trial_verb});
 var totalTrials = stim_set.length;
-
+function getAudioFile(elem) {
+	var audio_name = 'audio/' + elem.noun + '_' + elem.adj + '_' + elem.vb + '.ogg';
+	return audio_name;
+}
 
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
@@ -105,6 +110,7 @@ var experiment = {
       elapsed_ms: [],
 	  dir: [],
 	  adj: [],
+	  verb: [],
 	  num_checked: [],
       num_errors: [],
 	  lang: [],
@@ -143,6 +149,7 @@ var experiment = {
 		response_logged = true;
 		experiment.data.elapsed_ms.push(elapsed);
 		experiment.data.ratings.push(responses);
+		experiment.data.num_checked.push(responses.length)
 	  }
 
       if (response_logged) {
@@ -217,7 +224,7 @@ var experiment = {
 			  var current_noun = "houses";
 			  break;
 			  case "monkey":
-			  var current_noun = "monkies";
+			  var current_noun = "monkeys";
 			  break;
 			  case "mouse":
 			  var current_noun = "mice";
@@ -244,6 +251,8 @@ var experiment = {
           experiment.data.noun.push(elem.noun);
 		  experiment.data.dir.push(elem.dir);
 		  experiment.data.adj.push(elem.adj);
+		  experiment.data.verb.push(elem.vb);
+		  
           experiment.data.window_width.push($(window).width());
           experiment.data.window_height.push($(window).height());
 
