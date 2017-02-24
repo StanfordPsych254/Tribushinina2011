@@ -52,9 +52,9 @@ $.urlParam = function(name){
 
 // ############################## Configuration settings ##############################
 var stim_set = [];
-var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
+//var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
-//var nouns = ['baby', 'balloon'];
+var nouns = ['baby', 'balloon'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
 var verb = ['seem', 'find', 'are'];
@@ -86,17 +86,81 @@ function getImageFiles(elem) {
 
   return pic_set;
 }
-
-
 stim_set = shuffle(stim_set);
+function AreAdjacentNouns(stims) {
+	var are_adj = false;
+	var i = 0;
+	while (are_adj == false && i < (stims.length-1) ) {
+		if (stims[i].noun == stims[i+1].noun){
+			are_adj = true;			
+		} 
+		i++;
+	}
+	return are_adj;
+}
+while (AreAdjacentNouns(stim_set) == true) {
+	stim_set = shuffle(stim_set);
+}
+
 stim_set.unshift({noun:"pretty", dir: "asc", adj: "pretty", vb: trial_verb}, {noun:"car", dir: "desc", adj:"ugly", vb: trial_verb});
 var totalTrials = stim_set.length;
 function getAudioFile(elem) {
-	var audio_name = 'audio/' + elem.noun + '_' + elem.adj + '_' + elem.vb + '.ogg';
+	var audio_name = 'audio/mp3s/' + elem.noun + '_' + elem.adj + '_' + elem.vb + '.mp3';
 	return audio_name;
 }
 
-
+function getAudioTailLength(elem){
+	switch (elem.vb) {
+    case "find":
+		switch (elem.adj){
+			case "small":
+				var audio_tail = 0.947;
+				break;
+			case "big":
+				var audio_tail = 0.732;
+				break;
+			case "pretty":
+				var audio_tail = 0.890;
+				break;
+			case "ugly":
+				var audio_tail = 0.879;
+				break;
+		}
+	case "seem":
+		switch (elem.adj){
+			case "small":
+				var audio_tail = 1.259;
+				break;
+			case "big":
+				var audio_tail = 1.108;
+				break;
+			case "pretty":
+				var audio_tail = 1.150;
+				break;
+			case "ugly":
+				var audio_tail = 1.286;
+				break;
+		}
+	case "are":
+		switch (elem.adj){
+			case "small":
+				var audio_tail = 0.956;
+				break;
+			case "big":
+				var audio_tail = 0.715;
+				break;
+			case "pretty":
+				var audio_tail = 0.882;
+				break;
+			case "ugly":
+				var audio_tail = 0.875;
+				break;
+		}
+	}
+       
+    
+	return audio_tail;
+}
 
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
@@ -110,6 +174,7 @@ var experiment = {
       noun: [],
       ratings: [],
       elapsed_ms: [],
+	  elapsed_first_click_ms: [],
 	  dir: [],
 	  adj: [],
 	  verb: [],
@@ -125,6 +190,7 @@ var experiment = {
 
     start_ms: 0,  // time current trial started ms
     num_errors: 0,    // number of errors so far in current trial
+	first_click: true,
 
     // end the experiment
     end: function() {
@@ -133,7 +199,13 @@ var experiment = {
         turk.submit(experiment.data)
       }, 1500);
     },
-
+	log_checkbox: function() {
+		if (!experiment.first_click)
+			return;
+		experiment.first_click = false;
+		var response_time = Date.now() - experiment.start_ms;
+		experiment.data.elapsed_first_click_ms.push(response_time);
+	},
     // LOG RESPONSE
     log_response: function() {
       var response_logged = false;
@@ -150,7 +222,7 @@ var experiment = {
 	  if (responses.length > 0) {
 		response_logged = true;
 		experiment.data.elapsed_ms.push(elapsed);
-		experiment.data.ratings.push(responses);
+		experiment.data.ratings.push(responses);		
 		experiment.data.num_checked.push(responses.length)
 	  }
 
@@ -179,9 +251,9 @@ var experiment = {
               String(100 * (1 - stim_set.length/totalTrials)) + "%")
           // style="width:progressTotal%"
           window.setTimeout(function() {
-            $('#stage-content').show();
-            experiment.start_ms = Date.now();
+            $('#stage-content').show();            
             experiment.num_errors = 0;
+			experiment.first_click = true;
           }, 150);
 
           // Get the current trial - <code>shift()</code> removes the first element
@@ -199,86 +271,40 @@ var experiment = {
 			  var file_name = image_filenames.shift();
 			  $("#noun_" + i).attr('src', file_name);
 		  }
-/*           var beg = "<h3><b> Which ";
-		  switch (elem.noun){
-			  case "baby":
-			  var current_noun = "babies";
-			  break;
-			  case "balloon":
-			  var current_noun = "balloons";
-			  break;
-			  case "cake":
-			  var current_noun = "cakes";
-			  break;
-			  case "chick":
-			  var current_noun = "chicks";
-			  break;
-			  case "elephant":
-			  var current_noun = "elephants";
-			  break;
-			  case "gnome":
-			  var current_noun = "gnomes";
-			  break;
-			  case "hippo":
-			  var current_noun = "hippos";
-			  break;
-			  case "house":
-			  var current_noun = "houses";
-			  break;
-			  case "monkey":
-			  var current_noun = "monkeys";
-			  break;
-			  case "mouse":
-			  var current_noun = "mice";
-			  break;
-			  case "plane":
-			  var current_noun = "planes";
-			  break;
-			  case "umbrella":
-			  var current_noun = "umbrellas";
-			  break;
-			  case "pretty":
-			  var current_noun = "balloons";
-			  break;
-			  case "car":
-			  var current_noun = "cars";
-			  
-		  }
-		  var middle = " do you find ";
-		  var conc = "?</b></h3>"
-		  var current_stimulus = beg + current_noun + middle + elem.adj + conc;
-		  $('#currentStim').html(current_stimulus); */
-		 
 		
 		$("#nextButton").prop("disabled", true);
+		$(".judgment_box").prop("disabled", true);
 		var audio = new Audio();
 		audio.loop = false;
 		audio.addEventListener("canplaythrough", function() {audio.play();});
 
-//to load a file; soundFileSource is the filename of the sound file you want to play
-audio.setAttribute("src", getAudioFile(elem));
-audio.load();
-doSomethingAfterAudio();
+		//to load a file; soundFileSource is the filename of the sound file you want to play
+		audio.setAttribute("src", getAudioFile(elem));
+		audio.load();
+		doSomethingAfterAudio(elem);
 
-//do something when audio ended - this checks in every 50ms once triggered and performs an action when the audio has finished playing
-function doSomethingAfterAudio() {
-    if (audio.ended) {
-         $("#nextButton").removeAttr('disabled');
-    } else {
-        setTimeout(function() {doSomethingAfterAudio();}, 50);
-    };
-};
+		//do something when audio ended - this checks in every 50ms once triggered and performs an action when the audio has finished playing
+		function doSomethingAfterAudio(elem){
+			if (audio.currentTime > audio.duration - getAudioTailLength(elem)) {
+				experiment.start_ms = Date.now();
+				$(".judgment_box").removeAttr('disabled');
+				$("#nextButton").removeAttr('disabled');
+			} else {
+				setTimeout(function() {doSomethingAfterAudio(elem);}, 50);
+			};			
+			 
+		};
 
-          // push all relevant variables into data object
-          experiment.data.noun.push(elem.noun);
-		  experiment.data.dir.push(elem.dir);
-		  experiment.data.adj.push(elem.adj);
-		  experiment.data.verb.push(elem.vb);
+        // push all relevant variables into data object
+        experiment.data.noun.push(elem.noun);
+		experiment.data.dir.push(elem.dir);
+		experiment.data.adj.push(elem.adj);
+		experiment.data.verb.push(elem.vb);
 		  
-          experiment.data.window_width.push($(window).width());
-          experiment.data.window_height.push($(window).height());
+        experiment.data.window_width.push($(window).width());
+        experiment.data.window_height.push($(window).height());
 
-          showSlide("stage");
+        showSlide("stage");
       }
     },
 
@@ -303,5 +329,7 @@ $(function() {
   });
   /* experiment.next();
   experiment.next(); */
+  
+  $(".judgment_box").change(function(){experiment.log_checkbox();});
 });
 
