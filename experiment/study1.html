@@ -22,29 +22,56 @@
   <div class="block-text trustworthy-instr">
   <p>
   In this experiment you will be asked to select images on the screen based on the instructions you hear. 
-  You may select as many images as you want on each screen.</p>
+  You may select as many images as you want on each screen. </p>
+  
+  <p>
+  Your browser must be able to play audio in order to participate in this HIT. The following screen will allow you to test your audio setup.
   </div>
   
 
 
-  <!-- <button type="button" onclick="this.blur(); showSlide('intro1')">Next</button> -->
-  <button type="button" onclick="this.blur(); experiment.next()">Start</button>
+	<button type="button" onclick="this.blur(); showSlide('audio_test')">Next</button>
+  <!-- <button type="button" onclick="this.blur(); experiment.next()">Start</button> -->
   <p class="block-text"><br> <b> Note: you won't be able to preview this HIT before accepting it because it's so short. </b></p>
   
-  <p class="block-text" id="legal">By answering the
-  following questions, you are participating in a study being performed by
-  cognitive scientists in the Stanford Department of Psychology. If you have
-  questions about this research, please contact us at 
-  <a href="mailto://languagecoglab@gmail.com.">languagecoglab@gmail.com</a>.
-  You must be  at least 18 years old to participate. Your participation in 
-  this research is voluntary. You may decline to answer any or all of the 
-  following questions. You may decline further participation, at any time, 
-  without adverse consequences. Your anonymity is assured; the researchers 
-  who have requested your participation will not receive any personal information 
-  about you. Note however that we have recently been made aware that your public 
-  Amazon.com profile can be accessed via your worker ID if you do not choose 
-  to opt out. If you would like to opt out of this feature, you may follow instructions available 
-  <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p>
+  <p class="block-text" id="legal">By answering the following questions, you are participating in a study being performed by 
+  cognitive scientists in the Stanford Department of Psychology.  If you have questions about this research, please contact us
+  at <a href="mailto://stanfordpsych254@gmail.com.">stanfordpsych254@gmail.com</a>. You must be  at least 18 years old to participate.
+  Your participation in this research is voluntary. You may decline to answer any or all of the  following questions.
+  You may decline further participation, at any time,  without adverse consequences. Your anonymity is assured; the researchers  who have
+  requested your participation will not receive any personal information  about you. 
+  
+  Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose  to opt out. 
+  If you would like to opt out of this feature, you may follow instructions available  <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p>
+
+</div>
+
+
+ <div class="slide" id="audio_test">
+    <h1>Audio Test</h1>
+    <p>Press play, then enter the word you hear into the test-box below. You will not be able to proceed unless the word is entered correctly.</p>
+	<div>
+		<audio id="audio" src="audio/mp3s/table.mp3" preload="auto"  ></audio>
+		<button id="play">Play</button>
+		<button id="stop">Stop</button>
+	</div>
+	<form id="audio_test_form">
+   
+
+		<div class="question1">
+			<p><b> What word did you hear?</b> </p>
+			<p>
+			<input type="text" id="audtest" name="autest" style="width:40%" value=""></textarea>
+			</p>
+		</div>
+  
+		<div align="center">
+		<button type="check" onclick="this.blur(); experiment.precheck()">Submit audio check</button>
+	
+		</div>
+		 <div id="audMessage"> </div>
+	</form>
+   <!-- <button type="button" id="startButton" onclick="this.blur(); experiment.next()">Start</button>  -->
 </div>
 
 
@@ -130,11 +157,10 @@
 
    <div class="question">
      <p><b> What is your native/first language (i.e., the language that was primarily spoken at home when you were a child)?</b> </p>
-   <form onsubmit="experiment.submitcomments()">
    <p>
 	<input type="text" id="homelang" name="lg" style="width:40%" value=""></textarea>
    </p>
-</div>
+	</div>
 
   
 

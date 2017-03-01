@@ -162,8 +162,54 @@ function getAudioTailLength(elem){
 	return audio_tail;
 }
 
+var playBtn = document.getElementById('play');
+var stopBtn = document.getElementById('stop');
+
+var playSound = function() {
+	audio.play();
+};
+
+playBtn.addEventListener('click', playSound, false);
+stopBtn.addEventListener('click', function(){audio.pause()}, false);
+ 
+/*  $("#startButton").prop("disabled", true);
+ 
+ $(function() {
+  $('form#audio_test_form').validate({
+	 rules: {	
+      "autest": "required",
+    },
+    messages: {
+      "autest": "Please enter the word you heard in lower case letters",
+    },
+    submitHandler: submit_audio()
+  });
+function submit_audio() {
+	  experiment.data.audio_test.push(document.getElementById("audtest").value);
+	  $("#startButton").removeAttr('disabled');
+      
+    }  
+   */
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
+
+   /*  // submitaudio function
+function submit_audio() {
+	  experiment.data.audio_test.push(document.getElementById("audtest").value);
+      experiment.next();
+    }
+	
+$(function() {
+  $('form#audio_test_form').validate({
+	 rules: {
+      "audtest": "required",
+	  "audtest": value = "table",
+    },
+    messages: {
+      "audtest": "Please enter the correct word",
+    },
+    submitHandler: submit_audio()
+  }); */
 
 // ############################## The main event ##############################
 var experiment = {
@@ -186,6 +232,7 @@ var experiment = {
       user_agent: [],
       window_width: [],
       window_height: [],
+	  audio_test: [],
     },
 
     start_ms: 0,  // time current trial started ms
@@ -193,6 +240,14 @@ var experiment = {
 	first_click: true,
 
     // end the experiment
+	precheck: function(){
+		var aut = $("#audtest").attr("value");
+		if (aut.toLowerCase() !== "test") {
+			$("#audmessage").html("please enter the text you heard");
+		} else {
+			experiment.next;
+		}
+	},
     end: function() {
       showSlide("finished");
       setTimeout(function() {
@@ -273,7 +328,6 @@ var experiment = {
 		  }
 		
 		$("#nextButton").prop("disabled", true);
-		$(".judgment_box").prop("disabled", true);
 		var audio = new Audio();
 		audio.loop = false;
 		audio.addEventListener("canplaythrough", function() {audio.play();});
@@ -287,14 +341,14 @@ var experiment = {
 		function doSomethingAfterAudio(elem){
 			if (audio.currentTime > audio.duration - getAudioTailLength(elem)) {
 				experiment.start_ms = Date.now();
-				$(".judgment_box").removeAttr('disabled');
 				$("#nextButton").removeAttr('disabled');
 			} else {
 				setTimeout(function() {doSomethingAfterAudio(elem);}, 50);
 			};			
 			 
 		};
-
+		//var inner_w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+		//var inner_h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
         // push all relevant variables into data object
         experiment.data.noun.push(elem.noun);
 		experiment.data.dir.push(elem.dir);
@@ -303,6 +357,9 @@ var experiment = {
 		  
         experiment.data.window_width.push($(window).width());
         experiment.data.window_height.push($(window).height());
+		//experiment.data.inner_win_width.push(inner_w);
+        //experiment.data.inner_win_height.push(inner_h);
+		
 
         showSlide("stage");
       }
@@ -325,6 +382,12 @@ var experiment = {
 
 $(function() {
   $('form#demographics').validate({
+	 rules: {
+      "lg": "required",
+    },
+    messages: {
+      "lg": "Please provide your native language",
+    },
     submitHandler: experiment.submit_comments
   });
   /* experiment.next();

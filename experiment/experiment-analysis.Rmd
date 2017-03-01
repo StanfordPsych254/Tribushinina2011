@@ -1,0 +1,15 @@
+---
+title: "Trib2011-Analysis"
+author: "Sara Kessler"
+date: "February 26, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
