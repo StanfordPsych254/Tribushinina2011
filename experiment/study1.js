@@ -70,7 +70,7 @@ for (var i = 0; i < nouns.length; i++){
 }
 
 var NUM_PICS = 7;
-
+var TEST_WORD = "test";
 function getImageFiles(elem) {
 	var pic_set = [];
   if (elem.dir  == 'asc') {
@@ -241,11 +241,11 @@ var experiment = {
 
     // end the experiment
 	precheck: function(){
-		var aut = $("#audtest").attr("value");
-		if (aut.toLowerCase() !== "test") {
-			$("#audmessage").html("please enter the text you heard");
+		var aut = $("#audtest").val();
+		if (aut.toLowerCase() != TEST_WORD) {
+			$("#audMessage").html("please enter the text you heard");
 		} else {
-			experiment.next;
+			experiment.next();
 		}
 	},
     end: function() {
