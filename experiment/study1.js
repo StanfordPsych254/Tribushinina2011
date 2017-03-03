@@ -161,7 +161,53 @@ function getAudioTailLength(elem){
     
 	return audio_tail;
 }
-
+function getProtStatus(elem){
+	switch(elem.noun){
+		case "pretty":
+			var stat = "na";
+			break;
+		case "car":
+			var stat = "na";
+			break;
+		case 'baby':
+			var stat = "small";
+			break;
+		case 'balloon':
+			var stat = "neither";
+			break;
+		case 'cake':
+			var stat = "neither";
+			break;
+		case 'chick':
+			var stat = "small";
+			break;
+		case 'elephant':
+			var stat = "big";
+			break;
+		case 'gnome':
+			var stat = "small";
+			break;
+		case 'hippo':
+			var stat = "big";
+			break;
+		case 'house':
+			var stat = "big";
+			break;
+		case 'monkey':
+			var stat = "neither";
+			break;
+		case 'mouse':
+			var stat = "small"
+			break;
+		case 'plane':
+			var stat = "big";
+			break;
+		case 'umbrella':
+			var stat = "neither";
+			break;
+	}
+	return stat;
+}
 var playBtn = document.getElementById('play');
 var stopBtn = document.getElementById('stop');
 
@@ -232,7 +278,7 @@ var experiment = {
       user_agent: [],
       window_width: [],
       window_height: [],
-	  audio_test: [],
+	  prototype_status: [],
     },
 
     start_ms: 0,  // time current trial started ms
@@ -354,7 +400,7 @@ var experiment = {
 		experiment.data.dir.push(elem.dir);
 		experiment.data.adj.push(elem.adj);
 		experiment.data.verb.push(elem.vb);
-		  
+		experiment.data.prototype_status.push(getProtStatus(elem));  
         experiment.data.window_width.push($(window).width());
         experiment.data.window_height.push($(window).height());
 		//experiment.data.inner_win_width.push(inner_w);
