@@ -43,8 +43,7 @@ for (f in files) {
                    language = jd$answers$data$lang,
                    prototype_status = jd$answers$data$prototype_status,
                    non_consec = jd$answers$data$non_consecutive,
-                   endpoint = jd$answers$data$endpoint,
-                   subid = f)
+                   endpoint = jd$answers$data$endpoint)
                   
   d.raw <- bind_rows(d.raw, id)
 }
