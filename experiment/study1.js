@@ -52,9 +52,9 @@ $.urlParam = function(name){
 
 // ############################## Configuration settings ##############################
 var stim_set = [];
-//var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
+var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
-var nouns = ['baby', 'balloon'];
+//var nouns = ['baby', 'balloon'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
 var verb = ['seem', 'find', 'are'];
@@ -208,6 +208,35 @@ function getProtStatus(elem){
 	}
 	return stat;
 }
+
+// sort function for numbers 
+function compareNumbers(a, b) {
+  return a - b;
+}
+
+function checkConsecutive(rats) {
+	is_nonconsec = false;
+	var i = 0;
+	var rats_nums = rats.map(Number);
+	var rats_sort = rats_nums.sort(compareNumbers);
+	console.log(rats_sort);
+	while (is_nonconsec == false && i < (rats_sort.length-1) ) {
+		console.log(i);
+		console.log(rats_sort[i]);
+		console.log(rats_sort[i+1]-1);
+		if (rats_sort[i] != (rats_sort[i+1]-1)){
+			is_nonconsec = true;			
+		}
+		i++;
+	}
+	return is_nonconsec;
+}
+
+function checkEndpoint(rats) {
+	var is_endpoint = rats.includes("1")||rats.includes("7");
+	return is_endpoint;
+}
+
 var playBtn = document.getElementById('play');
 var stopBtn = document.getElementById('stop');
 
@@ -265,6 +294,8 @@ var experiment = {
 
       noun: [],
       ratings: [],
+	  non_consecutive: [],
+	  endpoint: [],
       elapsed_ms: [],
 	  elapsed_first_click_ms: [],
 	  dir: [],
@@ -279,6 +310,8 @@ var experiment = {
       window_width: [],
       window_height: [],
 	  prototype_status: [],
+	  dpi_width: [],
+	  dpi_height: [],
     },
 
     start_ms: 0,  // time current trial started ms
@@ -324,7 +357,9 @@ var experiment = {
 		response_logged = true;
 		experiment.data.elapsed_ms.push(elapsed);
 		experiment.data.ratings.push(responses);		
-		experiment.data.num_checked.push(responses.length)
+		experiment.data.num_checked.push(responses.length);
+		experiment.data.endpoint.push(checkEndpoint(responses));
+		experiment.data.non_consecutive.push(checkConsecutive(responses));
 	  }
 
       if (response_logged) {
@@ -393,6 +428,8 @@ var experiment = {
 			};			
 			 
 		};
+		dpi_w = document.getElementById('testdiv').offsetWidth;
+		dpi_h = document.getElementById('testdiv').offsetHeight;
 		//var inner_w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 		//var inner_h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
         // push all relevant variables into data object
@@ -403,8 +440,8 @@ var experiment = {
 		experiment.data.prototype_status.push(getProtStatus(elem));  
         experiment.data.window_width.push($(window).width());
         experiment.data.window_height.push($(window).height());
-		//experiment.data.inner_win_width.push(inner_w);
-        //experiment.data.inner_win_height.push(inner_h);
+		experiment.data.dpi_width.push(dpi_w);
+        experiment.data.dpi_height.push(dpi_h);
 		
 
         showSlide("stage");

@@ -7,9 +7,347 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+
 ```
 
 ```{r}
+setwd("D:/Dropbox/School/2016-2017/psych254/Tribushinina2011")
 library(tidyverse)
+library(langcog) 
+library(rjson)
+
+sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(length(x))}
+ci95 <- function(x) {sem(x) * 1.96}
 ```
+
+```{r}
+path <- "D:/Dropbox/School/2016-2017/psych254/Tribushinina2011/experiment/"
+files <- dir("D:/Dropbox/School/2016-2017/psych254/Tribushinina2011/experiment/pilota_results/", 
+             pattern = "*.json")
+d.raw <- data.frame()
+
+for (f in files) {
+  jf <- paste0(path, "pilota_results/",f)
+  jd <- fromJSON(file = jf)
+  id <- data.frame(subid = f,
+                   adj = jd$answers$data$adj,
+                   verb = jd$answers$data$verb,
+                   noun = jd$answers$data$noun,
+                   dir = jd$answers$data$dir,
+                   num_checked = as.numeric(jd$answers$data$num_checked),
+                   noun = jd$answers$data$noun,
+                   elapsed_ms = jd$answers$data$elapsed_ms,
+                   elapsed_first_click_ms = jd$answers$data$elapsed_first_click_ms,
+                   workerid = jd$WorkerId,
+                   language = jd$answers$data$lang,
+                   prototype_status = jd$answers$data$prototype_status,
+                   non_consec = jd$answers$data$non_consecutive,
+                   endpoint = jd$answers$data$endpoint,
+                   subid = f)
+                  
+  d.raw <- bind_rows(d.raw, id)
+}
+
+# Number of participants
+length(unique(d.raw$workerid))
+length(unique(d.raw$subid))
+
+num_trials = 48
+
+```
+```{r}
+# get rid of training items, and language columns
+d <- filter(d.raw, prototype_status != "na") %>%
+  select(-language) %>%
+  group_by(subid) %>%
+  summarise(perc_non_consec = sum(non_consec)/num_trials, perc_no_enpoint = (length(endpoint)-sum(endpoint))/num_trials)%>%
+  
+#need to check for having more than 10% non_consecutive or more than 10% with no endpoint, and exclude those participants, and then exclude any remaining trials in which there is non_consecutive data or no endpoint.  
+filter(perc_no_enpoint > .1) %>%
+filter(perc_non_consec > .1)
+
+head(d)
+```
+```{r}
+#exclude participants with more than 10% non-consecutive answers or more than 10% answers with no endpoint
+
+
+#exclude trials with non consecutive answers, and without endpoints
+```
+
+
+```{r}
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))
+```
+```{r}
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(.~dir)
+
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(.~adj)
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(.~verb)
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(.~noun)
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(.~prototype_status)
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(adj~verb)
+qplot(num_checked, data = d, binwidth=1) + 
+  xlim(c(1,8))+ facet_grid(adj~prototype_status)
+```
+```{r}
+ggplot(d, aes(x = adj, y = num_checked, col = verb)) + 
+  geom_jitter() + 
+  geom_smooth() +
+  facet_wrap(~prototype_status)
+```
+```{r}
+#test of effects of scale direction. Is this the right test? she doesn't say
+d_zone_dir <- d %>%
+  group_by(subid, noun, adj, dir)%>%
+  summarise(zone = num_checked) %>%
+  spread(dir, zone)
+
+wilcox.test(d_zone_dir$asc, d_zone_dir$desc, paired = TRUE)
+```
+
+
+```{r}
+#testing whether the small zone is bigger than the big zone
+d %>%
+  group_by(verb, adj) %>%
+  summarise(mean_zone = mean(num_checked), sds = sd(num_checked))
+
+d_wilc <- d %>%
+  group_by(subid, verb, noun, adj, dir) %>%
+  summarise(zone = num_checked)%>%
+  spread(adj, zone)
+  wilcox.test(d_wilc$big, d_wilc$small, alternative = "l", paired = TRUE)
+```
+
+
+```{r}
+d_graph <- d %>%
+  group_by(prototype_status, adj) %>%
+  summarise(mean_zone = mean(num_checked), sems = sem(num_checked), cis = ci95(num_checked))
+
+
+
+table(d_graph$adj, d_graph$prototype_status)
+str(d_graph)
+
+d_graph$adj <- factor(d_graph$adj)
+d_graph$prototype_status <- factor(d_graph$prototype_status)
+levels(d_graph$prototype_status)
+
+levels(d_graph$adj)
+levels(d_graph$prototype_status)
+
+
+friedman.test(zone ~ adj | prototype_status, data = d_graph)
+
+ggplot(d_graph, aes(x=adj, y=mean_zone, fill = prototype_status)) + geom_bar(stat = "identity", position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean_zone-sems, ymax=mean_zone+sems),
+                  width=.2, position=position_dodge(.9))
+
+ggplot(d_graph, aes(x=adj, y=mean_zone, fill = prototype_status)) + geom_bar(stat = "identity", position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean_zone-cis, ymax=mean_zone+cis),
+                  width=.2, position=position_dodge(.9))
+```
+
+```{r}
+# Friedman test of differences between objectss of different prototypicality status when the adjective is big
+d_fried <- d %>%
+  filter(adj=="big")%>%
+  group_by(subid, prototype_status) %>%
+  summarise(zone = mean(num_checked))
+
+
+
+table(d_fried$subid, d_fried$prototype_status)
+str(d_fried)
+
+d_fried$subid <- factor(d_fried$subid)
+d_fried$prototype_status <- factor(d_fried$prototype_status)
+levels(d_fried$prototype_status)
+
+levels(d_fried$subid)
+levels(d_fried$prototype_status)
+
+
+friedman.test(zone ~ prototype_status  | subid, data = d_fried)
+```
+
+
+```{r}
+#test the difference between prototypically big and neutral objects when the adjective is big
+d_wilc_bn <- d %>%
+  filter(adj == "big")%>%
+  filter(prototype_status != "small")%>%
+  group_by(subid, verb, prototype_status) %>%
+  summarise(zone = mean(num_checked))%>%
+  spread(prototype_status, zone)
+
+wilcox.test(d_wilc_bn$big, d_wilc_bn$neither, alternative = "l", paired = TRUE)
+```
+
+```{r}
+#test the difference between prototypically neither and small objects when the adjective is big
+d_wilc_ns <- d %>%
+  filter(adj == "big")%>%
+  filter(prototype_status != "big")%>%
+  group_by(subid, verb, prototype_status) %>%
+  summarise(zone = mean(num_checked))%>%
+  spread(prototype_status, zone)
+
+wilcox.test(d_wilc_ns$neither, d_wilc_ns$small, alternative = "l", paired = TRUE)
+```
+
+```{r}
+#test the difference between prototypically big and small objects when the adjective is big
+d_wilc_bs <- d %>%
+  filter(adj == "big")%>%
+  filter(prototype_status != "neither")%>%
+  group_by(subid, verb, prototype_status) %>%
+  summarise(zone = mean(num_checked))%>%
+  spread(prototype_status, zone)
+
+wilcox.test(d_wilc_bs$big, d_wilc_bs$small, alternative = "l", paired = TRUE)
+```
+
+```{r}
+# Friedman test of differences between objectss of different prototypicality status when the adjective is small
+d_fried_s <- d %>%
+  filter(adj=="big")%>%
+  group_by(subid, prototype_status) %>%
+  summarise(zone = mean(num_checked))
+
+
+
+table(d_fried_s$subid, d_fried_s$prototype_status)
+str(d_fried_s)
+
+d_fried_s$subid <- factor(d_fried_s$subid)
+d_fried_s$prototype_status <- factor(d_fried_s$prototype_status)
+levels(d_fried_s$prototype_status)
+
+levels(d_fried$subid)
+levels(d_fried$prototype_status)
+
+
+friedman.test(zone ~ prototype_status  | subid, data = d_fried_s)
+```
+
+
+```{r}
+#test the difference between prototypically big and neutral objects when the adjective is small
+d_wilc_sbn <- d %>%
+  filter(adj == "small")%>%
+  filter(prototype_status != "small")%>%
+  group_by(subid, verb, prototype_status) %>%
+  summarise(zone = mean(num_checked))%>%
+  spread(prototype_status, zone)
+
+wilcox.test(d_wilc_sbn$big, d_wilc_sbn$neither, alternative = "l", paired = TRUE)
+```
+
+```{r}
+#test the difference between prototypically neither and small objects when the adjective is small
+d_wilc_sns <- d %>%
+  filter(adj == "small")%>%
+  filter(prototype_status != "big")%>%
+  group_by(subid, verb, prototype_status) %>%
+  summarise(zone = mean(num_checked))%>%
+  spread(prototype_status, zone)
+
+wilcox.test(d_wilc_sns$neither, d_wilc_sns$small, alternative = "l", paired = TRUE)
+```
+
+```{r}
+#test the difference between prototypically big and small objects when the adjective is small
+d_wilc_sbs <- d %>%
+  filter(adj == "small")%>%
+  filter(prototype_status != "neither")%>%
+  group_by(subid, verb, prototype_status) %>%
+  summarise(zone = mean(num_checked))%>%
+  spread(prototype_status, zone)
+
+wilcox.test(d_wilc_sbs$big, d_wilc_sbs$small, alternative = "l", paired = TRUE)
+```
+
+
+```{r}
+d_graph <- d %>%
+  group_by(prototype_status, adj) %>%
+  summarise(mean_rt = mean(elapsed_first_click_ms), sems = sem(elapsed_first_click_ms), cis = ci95(elapsed_first_click_ms))
+
+
+
+d_graph$adj <- factor(d_graph$adj)
+
+
+levels(d_graph$adj)
+
+
+ggplot(d_graph, aes(x=adj, y=mean_rt, fill = prototype_status)) + geom_bar(stat = "identity", position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean_rt-sems, ymax=mean_rt+sems),
+                  width=.2, position=position_dodge(.9))
+
+ggplot(d_graph, aes(x=adj, y=mean_rt, fill = prototype_status)) + geom_bar(stat = "identity", position=position_dodge()) +
+    geom_errorbar(aes(ymin=mean_rt-cis, ymax=mean_rt+cis),
+                  width=.2, position=position_dodge(.9))
+```
+
+
+```{r}
+#test the difference between prototypically big when the adjective is small and prototypically small objects when the adjective is big -- incompatible questions
+
+
+small_incomp <- d %>%
+  filter(adj == "small") %>%
+  filter(prototype_status == "big")
+
+big_comp <- d %>%
+  filter(adj == "big") %>%
+  filter(prototype_status == "big")
+
+big_incomp <- d %>%
+  filter(adj == "big") %>%
+  filter(prototype_status == "small")
+
+small_comp <- d %>%
+  filter(adj == "small") %>%
+  filter(prototype_status == "small") 
+str(small_comp)
+
+wilcox.test(small_comp$elapsed_first_click_ms, small_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
+
+wilcox.test(big_comp$elapsed_first_click_ms, big_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
+
+```
+
+
+```{r}
+#test of difference between RTs on ascending and descending trials with the same adjective
+d_rt_small <- d %>%
+  filter(adj == "small") %>%
+  group_by(subid, noun, dir)%>%
+  summarise(rt = elapsed_first_click_ms) %>%
+  spread(dir, rt)
+
+wilcox.test(d_rt_small$asc, d_rt_small$desc, alternative = "l", paired = TRUE)
+
+d_rt_big <- d %>%
+  filter(adj == "big") %>%
+  group_by(subid, noun, dir)%>%
+  summarise(rt = elapsed_first_click_ms) %>%
+  spread(dir, rt)
+
+wilcox.test(d_rt_big$asc, d_rt_big$desc, alternative = "l", paired = TRUE)
+```
+
+
 
