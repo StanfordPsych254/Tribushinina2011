@@ -54,6 +54,7 @@ $.urlParam = function(name){
 var stim_set = [];
 var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
+//for testing purposes - short varient
 //var nouns = ['baby', 'balloon'];
 var dirs = ['asc', 'desc'];
 var adjs = ['big', 'small'];
@@ -71,6 +72,7 @@ for (var i = 0; i < nouns.length; i++){
 
 var NUM_PICS = 7;
 var TEST_WORD = "test";
+//gets the right set of image files for the trial
 function getImageFiles(elem) {
 	var pic_set = [];
   if (elem.dir  == 'asc') {
@@ -87,6 +89,7 @@ function getImageFiles(elem) {
   return pic_set;
 }
 stim_set = shuffle(stim_set);
+//Makes sure that you don't get two of the same object in a row
 function AreAdjacentNouns(stims) {
 	var are_adj = false;
 	var i = 0;
@@ -101,14 +104,16 @@ function AreAdjacentNouns(stims) {
 while (AreAdjacentNouns(stim_set) == true) {
 	stim_set = shuffle(stim_set);
 }
-
+//adds the pretest items to the stimulus array
 stim_set.unshift({noun:"pretty", dir: "asc", adj: "pretty", vb: trial_verb}, {noun:"car", dir: "desc", adj:"ugly", vb: trial_verb});
+
 var totalTrials = stim_set.length;
+//gets the right audio file for the trial
 function getAudioFile(elem) {
 	var audio_name = 'audio/mp3s/' + elem.noun + '_' + elem.adj + '_' + elem.vb + '.mp3';
 	return audio_name;
 }
-
+//gives legth of time from adjective onset to end of audio for each adjective and verb type combination
 function getAudioTailLength(elem){
 	switch (elem.vb) {
     case "find":
@@ -161,6 +166,7 @@ function getAudioTailLength(elem){
     
 	return audio_tail;
 }
+//gets the prototype status of the noun
 function getProtStatus(elem){
 	switch(elem.noun){
 		case "pretty":
@@ -213,17 +219,13 @@ function getProtStatus(elem){
 function compareNumbers(a, b) {
   return a - b;
 }
-
+// checks that images selected are consecutive
 function checkConsecutive(rats) {
 	is_nonconsec = false;
 	var i = 0;
 	var rats_nums = rats.map(Number);
 	var rats_sort = rats_nums.sort(compareNumbers);
-	console.log(rats_sort);
 	while (is_nonconsec == false && i < (rats_sort.length-1) ) {
-		console.log(i);
-		console.log(rats_sort[i]);
-		console.log(rats_sort[i+1]-1);
 		if (rats_sort[i] != (rats_sort[i+1]-1)){
 			is_nonconsec = true;			
 		}
@@ -231,12 +233,25 @@ function checkConsecutive(rats) {
 	}
 	return is_nonconsec;
 }
-
+// checks to make sure either first or last item is selected
 function checkEndpoint(rats) {
-	var is_endpoint = rats.includes("1")||rats.includes("7");
+	var is_endpoint = rats.includes("1")||rats.includes("7")||rats.includes(8);
 	return is_endpoint;
 }
-
+//gets endpoint
+function getEndpoint(rats) {
+	if (rats.includes("1")){
+		var ep = 1;
+	} else if (rats.includes("7")){
+		var ep = 7;
+	} else if (rats.includes("8")){
+		var ep = 8;
+	} else {
+		var ep = "na";
+	}
+	return ep;
+}
+// Audio check
 var playBtn = document.getElementById('play');
 var stopBtn = document.getElementById('stop');
 
@@ -247,45 +262,12 @@ var playSound = function() {
 playBtn.addEventListener('click', playSound, false);
 stopBtn.addEventListener('click', function(){audio.pause()}, false);
  
-/*  $("#startButton").prop("disabled", true);
- 
- $(function() {
-  $('form#audio_test_form').validate({
-	 rules: {	
-      "autest": "required",
-    },
-    messages: {
-      "autest": "Please enter the word you heard in lower case letters",
-    },
-    submitHandler: submit_audio()
-  });
-function submit_audio() {
-	  experiment.data.audio_test.push(document.getElementById("audtest").value);
-	  $("#startButton").removeAttr('disabled');
-      
-    }  
-   */
+
+
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
 
-   /*  // submitaudio function
-function submit_audio() {
-	  experiment.data.audio_test.push(document.getElementById("audtest").value);
-      experiment.next();
-    }
-	
-$(function() {
-  $('form#audio_test_form').validate({
-	 rules: {
-      "audtest": "required",
-	  "audtest": value = "table",
-    },
-    messages: {
-      "audtest": "Please enter the correct word",
-    },
-    submitHandler: submit_audio()
-  }); */
-
+  
 // ############################## The main event ##############################
 var experiment = {
 
@@ -295,7 +277,7 @@ var experiment = {
       noun: [],
       ratings: [],
 	  non_consecutive: [],
-	  endpoint: [],
+	  is_endpoint: [],
       elapsed_ms: [],
 	  elapsed_first_click_ms: [],
 	  dir: [],
@@ -312,13 +294,17 @@ var experiment = {
 	  prototype_status: [],
 	  dpi_width: [],
 	  dpi_height: [],
+	  age: [],
+	  gender: [],
+	  education: [],
+	  endpoint: [],
     },
 
     start_ms: 0,  // time current trial started ms
     num_errors: 0,    // number of errors so far in current trial
 	first_click: true,
 
-    // end the experiment
+   //checks that the audio is functioning
 	precheck: function(){
 		var aut = $("#audtest").val();
 		if (aut.toLowerCase() != TEST_WORD) {
@@ -327,12 +313,14 @@ var experiment = {
 			experiment.next();
 		}
 	},
+	 // end the experiment
     end: function() {
       showSlide("finished");
       setTimeout(function() {
         turk.submit(experiment.data)
-      }, 1500);
+      }, 3000);
     },
+	//gets the reaction time from adjective onsect to first click
 	log_checkbox: function() {
 		if (!experiment.first_click)
 			return;
@@ -358,8 +346,9 @@ var experiment = {
 		experiment.data.elapsed_ms.push(elapsed);
 		experiment.data.ratings.push(responses);		
 		experiment.data.num_checked.push(responses.length);
-		experiment.data.endpoint.push(checkEndpoint(responses));
+		experiment.data.is_endpoint.push(checkEndpoint(responses));
 		experiment.data.non_consecutive.push(checkConsecutive(responses));
+		experiment.data.endpoint.push(getEndpoint(responses));
 	  }
 
       if (response_logged) {
@@ -418,7 +407,7 @@ var experiment = {
 		audio.load();
 		doSomethingAfterAudio(elem);
 
-		//do something when audio ended - this checks in every 50ms once triggered and performs an action when the audio has finished playing
+		//do something when audio ended - this checks in every 50ms once triggered and performs an action when the audio has finished playing, and enables the next button
 		function doSomethingAfterAudio(elem){
 			if (audio.currentTime > audio.duration - getAudioTailLength(elem)) {
 				experiment.start_ms = Date.now();
@@ -430,9 +419,6 @@ var experiment = {
 		};
 		dpi_w = document.getElementById('testdiv').offsetWidth;
 		dpi_h = document.getElementById('testdiv').offsetHeight;
-		//var inner_w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-		//var inner_h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-        // push all relevant variables into data object
         experiment.data.noun.push(elem.noun);
 		experiment.data.dir.push(elem.dir);
 		experiment.data.adj.push(elem.adj);
@@ -455,6 +441,15 @@ var experiment = {
 
     // submitcomments function
     submit_comments: function() {
+		var races = document.getElementsByName("race[]");
+      for (i = 0; i < races.length; i++) {
+        if (races[i].checked) {
+          experiment.data.race.push(races[i].value);
+        }
+      }
+      experiment.data.age.push(document.getElementById("age").value);
+      experiment.data.gender.push(document.getElementById("gender").value);
+      experiment.data.education.push(document.getElementById("education").value);
 	  experiment.data.lang.push(document.getElementById("homelang").value);
       experiment.data.expt_aim.push(document.getElementById("expthoughts").value);
       experiment.data.expt_gen.push(document.getElementById("expcomments").value);
@@ -462,20 +457,35 @@ var experiment = {
       experiment.end();
     }
 }
-
+//demographics form validation + experiment end
 $(function() {
   $('form#demographics').validate({
 	 rules: {
+	  "age": "required",
+      "gender": "required",
+      "education": "required",
+      "race[]": "required",
       "lg": "required",
     },
     messages: {
+	  "age": "Please choose an option",
+      "gender": "Please choose an option",
+      "education": "Please choose an option",
       "lg": "Please provide your native language",
     },
     submitHandler: experiment.submit_comments
+  });
+  $('#race_group input[value=no_answer]').click(function() {
+    $('#race_group input').not('input[value=no_answer]').attr('checked', false);
+  });
+  $('#race_group input').not('input[value=no_answer]').click(function() {
+    $('#race_group input[value=no_answer]').attr('checked', false);
   });
   /* experiment.next();
   experiment.next(); */
   
   $(".judgment_box").change(function(){experiment.log_checkbox();});
 });
+
+ 
 

@@ -22,7 +22,7 @@
   <div class="block-text trustworthy-instr">
   <p>
   In this experiment you will be asked to select images on the screen based on the instructions you hear. 
-  You may select as many images as you want on each screen. </p>
+  You may select as many images as you want on each screen. The images may be selected either by clicking on the image or on the corresponding radio button. </p>
   
   <p>
   Your browser must be able to play audio in order to participate in this HIT. The following screen will allow you to test your audio setup.
@@ -91,7 +91,6 @@
 </div>
 <div align="center">
    
-</div>
 <br>
 <table align = "center"><tr>
 <td align="center">
@@ -150,6 +149,7 @@
  <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
  </div>
 </div>
+</div>
 
  <!-- The debriefing slide. -->
  <div class="slide" id="debriefing">
@@ -162,7 +162,73 @@
 	<input type="text" id="homelang" name="lg" style="width:40%" value=""></textarea>
    </p>
 	</div>
+<div class="question">
+     <p><b>What is your age?</b>
+       <label id="age-error" class="error" for="age">Please choose an option</label>
+      </p>
+      <select name="age" id="age" form="demographics" required>
+        <option value="">Choose an age</option>
+        <option value="0-19">&nbsp;0-19</option>
+        <option value="20-29">20-29</option>
+        <option value="30-39">30-39</option>
+        <option value="40-49">40-49</option>
+        <option value="50-59">50-59</option>
+        <option value="60-69">60-69</option>
+        <option value="70-79">70-79</option>
+        <option value="80-89">80-89</option>
+        <option value="&gt;90">90+</option>
+      </select>
+    </div>
 
+   <div class="question">
+     <p>
+       <b>What is your gender identity?</b>
+       <label id="gender-error" class="error" for="gender">Please choose an option</label>
+      </p>
+      <select name="gender" id="gender" form="demographics" required>
+        <option value="">Choose a gender</option>
+        <option value="female">Female</option>
+        <option value="female_to_male">Female to male transgender</option>
+        <option value="male">Male</option>
+        <option value="male_to_female">Male to female transgender</option>
+        <option value="not_sure">Not sure</option>
+        <option value="other">Other</option>
+        <option value="no_answer">Prefer not to answer</option>
+      </select>
+   </div>
+
+   <div class="question">
+     <p>
+       <b>What is your highest level of education completed?</b>
+       <label id="education-error" class="error" for="education">Please choose an option</label>
+     </p>
+     <select name="education" id="education" form="demographics" required>
+       <option value="">Choose a level</option>
+       <option value="gradeSchool">Grade school</option>
+       <option value="highSchool">High school</option>
+       <option value="someCollege">Some college</option>
+       <option value="4year">4-year college</option>
+       <option value="someGrad">Some graduate school</option>
+       <option value="grad">Graduate degree</option>
+       <option value="no_answer">Prefer not to answer</option>
+     </select>
+   </div>
+
+   <div class="question">
+     <p>
+       <b>What is your race? Please check all that apply.</b>
+       <label id="race[]-error" class="error" for="race[]">Please choose an option</label>
+     </p>
+     <fieldset form="demographics" id="race_group">
+       <input type="checkbox" name="race[]" value="amInd"> American Indian or Alaskan Native</input><br />
+       <input type="checkbox" name="race[]" value="asian"> Asian</input><br/>
+       <input type="checkbox" name="race[]" value="natHaw"> Native Hawaiian or US Pacific Islander</input><br/>
+       <input type="checkbox" name="race[]" value="black"> Black/African American</input><br/>
+       <input type="checkbox" name="race[]" value="white"> White</input><br/>
+       <input type="checkbox" name="race[]" value="other"> Other</input><br/>
+       <input type="checkbox" name="race[]" value="no_answer"> Prefer not to answer</option>
+     </fieldset>
+   </div>
   
 
    <div class="question">
@@ -171,7 +237,7 @@
    </div>
 
    <div class="question">
-     <p><b>Any general comments about the experiment?</b></p>
+     <p><b>Any general comments about the experiment? Did you run into any issues?</b></p>
      <textarea type="textarea" id="expcomments" style="width:100%" name="expgen"></textarea>
    </div>
   

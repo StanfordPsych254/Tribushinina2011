@@ -19,6 +19,11 @@ library(rjson)
 
 sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(length(x))}
 ci95 <- function(x) {sem(x) * 1.96}
+addnas <- function (x) {if (length(x)==0){
+  result = "na"
+} else {result = x}
+  return(result)
+  }
 ```
 
 ```{r}
@@ -42,8 +47,10 @@ for (f in files) {
                    workerid = jd$WorkerId,
                    language = jd$answers$data$lang,
                    prototype_status = jd$answers$data$prototype_status,
-                   non_consec = jd$answers$data$non_consecutive,
-                   endpoint = jd$answers$data$endpoint)
+                   non_consec = addnas(jd$answers$data$non_consecutive),
+                   is_endpoint = addnas(jd$answers$data$is_endpoint),
+                   endpoint = addnas(jd$answer$data$endpoint))
+                    
                   
   d.raw <- bind_rows(d.raw, id)
 }
@@ -60,11 +67,12 @@ num_trials = 48
 d <- filter(d.raw, prototype_status != "na") %>%
   select(-language) %>%
   group_by(subid) %>%
-  summarise(perc_non_consec = sum(non_consec)/num_trials, perc_no_enpoint = (length(endpoint)-sum(endpoint))/num_trials)%>%
-  
+  summarise(perc_non_consec = sum(non_consec)/num_trials,
+            perc_no_endpoint = (length(endpoint)-sum(endpoint))/num_trials)%>%
+  filter(perc_no_endpoint < .1) %>%
+  filter(perc_non_consec < .1)
+
 #need to check for having more than 10% non_consecutive or more than 10% with no endpoint, and exclude those participants, and then exclude any remaining trials in which there is non_consecutive data or no endpoint.  
-filter(perc_no_enpoint > .1) %>%
-filter(perc_non_consec > .1)
 
 head(d)
 ```
