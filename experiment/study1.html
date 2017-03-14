@@ -30,7 +30,7 @@
   
 
 
-	<button type="button" onclick="this.blur(); showSlide('audio_test')">Next</button>
+	<button type="button" id="startButton" onclick="this.blur(); showSlide('audio_test')">Start</button>
   <!-- <button type="button" onclick="this.blur(); experiment.next()">Start</button> -->
   <p class="block-text"><br> <b> Note: you won't be able to preview this HIT before accepting it because it's so short. </b></p>
   
@@ -230,6 +230,24 @@
      </fieldset>
    </div>
   
+  <div class="question">
+     <p>
+       <b>What is the approximate size of the screen you did this task on?</b>
+       <label id="screen-error" class="error" for="screen">Please choose an option</label>
+     </p>
+     <select name="screen" id="screen" form="demographics" required>
+       <option value="">Choose a size in inches</option>
+	   <option value="5">Less than 6 inches</option>
+       <option value="6">6 inches (typical smart phone)</option>
+       <option value="7">7-10 inches</option>
+       <option value="11">11 inches (typical tablet)</option>
+       <option value="12">12-14 inches</option>
+       <option value="13">15 inches (typical laptop)</option>
+       <option value="16">16-21 inches</option>
+       <option value="22">22 inches (typical desktop monitor)</option>
+	   <option value="23">23 inches or more</option>
+     </select>
+   </div>
 
    <div class="question">
      <p><b> What do you think this experiment was about?</b></p>

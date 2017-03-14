@@ -19,6 +19,7 @@ function random(a,b) {
   }
 }
 
+
 // Add a random selection function to all arrays (e.g., <code>[4,8,7].random()</code> could return 4, 8, or 7). This is useful for condition randomization.
 Array.prototype.random = function() {
   return this[random(this.length)];
@@ -51,6 +52,7 @@ $.urlParam = function(name){
 }
 
 // ############################## Configuration settings ##############################
+
 var stim_set = [];
 var nouns = ['baby', 'balloon', 'cake', 'chick', 'elephant', 'gnome', 'hippo', 'house', 'monkey', 'mouse', 'plane', 'umbrella'];
 
@@ -290,6 +292,8 @@ function checkEndpointCorrect(rats, blah){
 	return good_endp;
 }
 
+
+
 // Audio check
 var playBtn = document.getElementById('play');
 var stopBtn = document.getElementById('stop');
@@ -306,8 +310,9 @@ stopBtn.addEventListener('click', function(){audio.pause()}, false);
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
 
+
 var elem;
-  
+ 
 // ############################## The main event ##############################
 var experiment = {
 
@@ -337,6 +342,8 @@ var experiment = {
 	  age: [],
 	  gender: [],
 	  education: [],
+	  race: [],
+	  screen_size: [],
 	  endpoint: [],
 	  good_ep: [],
 	  none_checked: [],
@@ -494,6 +501,7 @@ var experiment = {
       experiment.data.age.push(document.getElementById("age").value);
       experiment.data.gender.push(document.getElementById("gender").value);
       experiment.data.education.push(document.getElementById("education").value);
+	  experiment.data.screen_size.push(document.getElementById("screen").value);
 	  experiment.data.lang.push(document.getElementById("homelang").value);
       experiment.data.expt_aim.push(document.getElementById("expthoughts").value);
       experiment.data.expt_gen.push(document.getElementById("expcomments").value);
@@ -510,11 +518,13 @@ $(function() {
       "education": "required",
       "race[]": "required",
       "lg": "required",
+	  "screen": "required",
     },
     messages: {
 	  "age": "Please choose an option",
       "gender": "Please choose an option",
       "education": "Please choose an option",
+	  "screen": "Please choose an option",
       "lg": "Please provide your native language",
     },
     submitHandler: experiment.submit_comments
