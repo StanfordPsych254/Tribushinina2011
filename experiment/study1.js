@@ -235,7 +235,7 @@ function checkConsecutive(rats) {
 }
 // checks to make sure either first or last item is selected
 function checkEndpoint(rats) {
-	var is_endpoint = rats.includes("1")||rats.includes("7")||rats.includes(8);
+	var is_endpoint = rats.includes("1")||rats.includes("7")||rats.includes("9");
 	return is_endpoint;
 }
 //gets endpoint
@@ -244,13 +244,52 @@ function getEndpoint(rats) {
 		var ep = 1;
 	} else if (rats.includes("7")){
 		var ep = 7;
-	} else if (rats.includes("8")){
-		var ep = 8;
+	} else if (rats.includes("9")){
+		var ep = 9;
 	} else {
 		var ep = "na";
 	}
 	return ep;
 }
+//looks to see whether they selected "none of them"
+function checkNone(rats) {
+	if (rats.includes("9")){
+		var noneofthem = true;
+	} else {
+		var noneofthem = false;
+	}
+	return noneofthem;
+}
+// check whether endpoint is correct
+function checkEndpointCorrect(rats, blah){
+	var good_endp = false;
+	if (rats.includes("9")) {
+		good_ep = true;
+	}
+	if (blah.adj == "big"){
+		if (blah.dir == "asc") {
+			if (rats.includes("7")) {
+				good_endp = true;
+			} 			
+		} else  {
+			if (rats.includes("1")) {
+				good_endp = true;
+			}
+		}
+	} else if (blah.adj == "small") {
+		if (blah.dir == "desc") {
+			if (rats.includes("7")) {
+				good_endp = true;
+			} 			
+		} else {
+			if (rats.includes("1")) {
+				good_endp = true;
+			}
+		}
+	}
+	return good_endp;
+}
+
 // Audio check
 var playBtn = document.getElementById('play');
 var stopBtn = document.getElementById('stop');
@@ -267,6 +306,7 @@ stopBtn.addEventListener('click', function(){audio.pause()}, false);
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions");
 
+var elem;
   
 // ############################## The main event ##############################
 var experiment = {
@@ -298,6 +338,8 @@ var experiment = {
 	  gender: [],
 	  education: [],
 	  endpoint: [],
+	  good_ep: [],
+	  none_checked: [],
     },
 
     start_ms: 0,  // time current trial started ms
@@ -349,6 +391,8 @@ var experiment = {
 		experiment.data.is_endpoint.push(checkEndpoint(responses));
 		experiment.data.non_consecutive.push(checkConsecutive(responses));
 		experiment.data.endpoint.push(getEndpoint(responses));
+		experiment.data.good_ep.push(checkEndpointCorrect(responses, elem));
+		experiment.data.none_checked.push(checkNone(responses));
 	  }
 
       if (response_logged) {
@@ -383,7 +427,7 @@ var experiment = {
 
           // Get the current trial - <code>shift()</code> removes the first element
           // select from our scales array and stop exp after we've exhausted all the domains
-          var elem = stim_set.shift();
+          elem = stim_set.shift();
 
           //If the current trial is undefined, call the end function.
           if (typeof elem == "undefined") {

@@ -20,10 +20,11 @@ library(rjson)
 sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(length(x))}
 ci95 <- function(x) {sem(x) * 1.96}
 addnas <- function (x) {if (length(x)==0){
-  result = "na"
+  result = NA
 } else {result = x}
   return(result)
-  }
+}
+
 ```
 
 ```{r}
@@ -45,11 +46,13 @@ for (f in files) {
                    elapsed_ms = jd$answers$data$elapsed_ms,
                    elapsed_first_click_ms = jd$answers$data$elapsed_first_click_ms,
                    workerid = jd$WorkerId,
-                   language = jd$answers$data$lang,
+                   language = tolower(jd$answers$data$lang),
                    prototype_status = jd$answers$data$prototype_status,
                    non_consec = addnas(jd$answers$data$non_consecutive),
                    is_endpoint = addnas(jd$answers$data$is_endpoint),
-                   endpoint = addnas(jd$answer$data$endpoint))
+                   endpoint = addnas(jd$answer$data$endpoint),
+                   good_endpoint = addnas(jd$answers$data$good_ep),
+                   none_checked = addnas(jd$answer$data$none_checked))
                     
                   
   d.raw <- bind_rows(d.raw, id)
@@ -64,24 +67,29 @@ num_trials = 48
 ```
 ```{r}
 # get rid of training items, and language columns
-d <- filter(d.raw, prototype_status != "na") %>%
-  select(-language) %>%
-  group_by(subid) %>%
-  summarise(perc_non_consec = sum(non_consec)/num_trials,
-            perc_no_endpoint = (length(endpoint)-sum(endpoint))/num_trials)%>%
-  filter(perc_no_endpoint < .1) %>%
-  filter(perc_non_consec < .1)
 
-#need to check for having more than 10% non_consecutive or more than 10% with no endpoint, and exclude those participants, and then exclude any remaining trials in which there is non_consecutive data or no endpoint.  
+d <- filter(d.raw, prototype_status != "na") %>%
+  filter(verb == "find") %>%
+  #filter(language == "english") %>%
+  #select(-language) %>%
+  group_by(subid) %>%
+  mutate(perc_non_consec = sum(non_consec)/num_trials,
+            perc_no_endpoint = (length(is_endpoint)-sum(is_endpoint))/num_trials,
+         perc_good_endpoint = (sum(good_endpoint))/num_trials) %>%
+  filter(perc_non_consec < .1) %>%
+  filter(perc_good_endpoint >.9) %>%
+  filter(good_endpoint == false) %>%
+  filter(non_consec == true) %>%
+  filter(is_endpoint == false)
+  
+if (d$none_checked == true){
+  d$num_checked = 0
+}
+#need to check for having more than 10% non_consecutive or less than 90% with the right endpoint, and exclude those participants, and then exclude any remaining trials in which there is non_consecutive data or no endpoint.  (The option for saying none of them is big is coded as 9, so that if someone checks both the none box and one of the images then it comes up as non-consecutive)
 
 head(d)
 ```
-```{r}
-#exclude participants with more than 10% non-consecutive answers or more than 10% answers with no endpoint
 
-
-#exclude trials with non consecutive answers, and without endpoints
-```
 
 
 ```{r}
@@ -310,7 +318,7 @@ ggplot(d_graph, aes(x=adj, y=mean_rt, fill = prototype_status)) + geom_bar(stat 
 
 
 ```{r}
-#test the difference between prototypically big when the adjective is small and prototypically small objects when the adjective is big -- incompatible questions
+#test the difference between RTs for prototypically big when the adjective is small and prototypically small objects when the adjective is big -- incompatible questions
 
 
 small_incomp <- d %>%
@@ -337,6 +345,8 @@ wilcox.test(big_comp$elapsed_first_click_ms, big_incomp$elapsed_first_click_ms, 
 ```
 
 
+
+
 ```{r}
 #test of difference between RTs on ascending and descending trials with the same adjective
 d_rt_small <- d %>%
@@ -357,4 +367,31 @@ wilcox.test(d_rt_big$asc, d_rt_big$desc, alternative = "l", paired = TRUE)
 ```
 
 
+```{r}
+#test differnece between RTs for the adjective big and the adjective small, with the prediction that the processing of small is more cognitively demanding and therefore RTs should be longer. Tribushinina(2011) did not find a significant differnce.
+d_rt <- d %>%
+  group_by(subid, noun, dir, adj)%>%
+  summarise(rt = elapsed_first_click_ms) %>%
+  spread(adj, rt)
 
+wilcox.test(d_rt$small, d_rt$big, alternative = "g", paired = TRUE)
+```
+
+```{r}
+#test of difference between RTs on ascending and descending trials with the same adjective. Tribushinina (2011) found an effect of scale direction in the case of small, but not big.
+d_rt_small <- d %>%
+  filter(adj == "small") %>%
+  group_by(subid, noun, dir)%>%
+  summarise(rt = elapsed_first_click_ms) %>%
+  spread(dir, rt)
+
+wilcox.test(d_rt_small$asc, d_rt_small$desc, alternative = "l", paired = TRUE)
+
+d_rt_big <- d %>%
+  filter(adj == "big") %>%
+  group_by(subid, noun, dir)%>%
+  summarise(rt = elapsed_first_click_ms) %>%
+  spread(dir, rt)
+
+wilcox.test(d_rt_big$asc, d_rt_big$desc, alternative = "l", paired = TRUE)
+```

@@ -34,7 +34,7 @@ auth.json
 my-own-auth.json
 settings.json
 mturk/
-
+pilota_results/
 
 # Specific file keep
 !README.md
