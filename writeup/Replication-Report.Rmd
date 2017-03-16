@@ -160,7 +160,8 @@ Data preparation following the analysis plan.
 
 ####Load Relevant Libraries and Functions
 library(tidyverse)
-library(langcog) 
+#library(langcog)
+library(stringr)
 library(rjson)
 
 sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(length(x))}
@@ -173,13 +174,13 @@ addnas <- function (x) {if (length(x)==0){
 
 ####Import data
 
-path <- "D:/Dropbox/School/2016-2017/psych254/Tribushinina2011/experiment/"
-files <- dir("D:/Dropbox/School/2016-2017/psych254/Tribushinina2011/experiment/pilota_results/", 
+path <- "D:/Dropbox/School/2016-2017/psych254/Tribushinina2011/data/"
+files <- dir("D:/Dropbox/School/2016-2017/psych254/Tribushinina2011/data/anonymized-results/", 
              pattern = "*.json")
 d.raw <- data.frame()
 
 for (f in files) {
-  jf <- paste0(path, "pilota_results/",f)
+  jf <- paste0(path, "anonymized-results/",f)
   jd <- fromJSON(file = jf)
   id <- data.frame(subid = f,
                    adj = jd$answers$data$adj,
@@ -193,12 +194,12 @@ for (f in files) {
                    workerid = jd$WorkerId,
                    language = tolower(jd$answers$data$lang),
                    prototype_status = jd$answers$data$prototype_status,
-                   non_consec = addnas(jd$answers$data$non_consecutive),
-                   is_endpoint = addnas(jd$answers$data$is_endpoint),
-                   endpoint = addnas(jd$answer$data$endpoint),
-                   good_endpoint = addnas(jd$answers$data$good_ep),
-                   none_checked = addnas(jd$answer$data$none_checked),
-                   screen_size = addnas(jd$answer$data$screen_size))
+                   non_consec = jd$answers$data$non_consecutive,
+                   is_endpoint = jd$answers$data$is_endpoint,
+                   endpoint = as.character(unlist(jd$answer$data$endpoint)),
+                   good_endpoint = jd$answers$data$good_ep,
+                   none_checked = jd$answer$data$none_checked,
+                   screen_size = as.numeric(jd$answer$data$screen_size))
                     
                   
   d.raw <- bind_rows(d.raw, id)
@@ -214,33 +215,33 @@ num_trials = 48
 
 # get rid of training items, exclude non-English speakers, exclude those described below
 
-# d <- filter(d.raw, prototype_status != "na") %>%
-#   filter(verb == "find") %>%
-#   filter(screen_size >= 12) %>%
-#   filter(language == "english") %>%
-#   select(-language) %>%
-#   group_by(subid) %>%
-#   mutate(perc_non_consec = sum(non_consec)/num_trials,
-#             perc_no_endpoint = (length(is_endpoint)-sum(is_endpoint))/num_trials,
-#          perc_good_endpoint = (sum(good_endpoint))/num_trials) %>%
-#   filter(perc_non_consec < .1) %>%
-#   filter(perc_good_endpoint >.9) %>%
-#   filter(good_endpoint == FALSE) %>%
-#   filter(non_consec == TRUE) %>%
-#   filter(is_endpoint == FALSE)
-# for (i in 1:length(d$none_checked)) {
-#    if (d$none_checked[i] == TRUE & (!is.na(d$none_checked[i]))){
-#    d$num_checked[i] = 0
-#    }
-#  }
-
-
-#for pilot A
 d <- filter(d.raw, prototype_status != "na") %>%
+  #filter(verb == "find") %>%
+  filter(as.numeric(screen_size) >= 12) %>%
+  filter(str_detect(language, 'eng')) %>%
+  select(-language) %>%
   group_by(subid) %>%
   mutate(perc_non_consec = sum(non_consec)/num_trials,
             perc_no_endpoint = (length(is_endpoint)-sum(is_endpoint))/num_trials,
-         perc_good_endpoint = (sum(good_endpoint))/num_trials) 
+         perc_good_endpoint = (sum(good_endpoint))/num_trials) %>%
+  filter(perc_non_consec < .1) %>%
+  #filter(perc_good_endpoint >.9) %>%
+  #filter(good_endpoint == TRUE) %>%
+  filter(non_consec == FALSE) %>%
+  filter(is_endpoint == TRUE)
+for (i in 1:length(d$none_checked)) {
+   if (d$none_checked[i] == TRUE & (!is.na(d$none_checked[i]))){
+   d$num_checked[i] = 0
+   }
+ }
+
+
+#for pilot A
+# d <- filter(d.raw, prototype_status != "na") %>%
+#   group_by(subid) %>%
+#   mutate(perc_non_consec = sum(non_consec)/num_trials,
+#             perc_no_endpoint = (length(is_endpoint)-sum(is_endpoint))/num_trials,
+#          perc_good_endpoint = (sum(good_endpoint))/num_trials) 
 
 #need to check for having more than 10% non_consecutive or less than 90% with the right endpoint, and exclude those participants, and then exclude any remaining trials in which there is non_consecutive data or no endpoint.  (The option for saying none of them is big is coded as 9, so that if someone checks both the none box and one of the images then it comes up as non-consecutive)
 
@@ -456,7 +457,6 @@ ggplot(d_graph, aes(x=adj, y=mean_rt, fill = prototype_status)) + geom_bar(stat 
 ```{r}
 #test the difference between RTs for prototypically big when the adjective is small and prototypically small objects when the adjective is big -- incompatible questions
 
-
 small_incomp <- d %>%
   filter(adj == "small") %>%
   filter(prototype_status == "big")
@@ -474,7 +474,7 @@ small_comp <- d %>%
   filter(prototype_status == "small") 
 
 
-wilcox.test(small_comp$elapsed_first_click_ms, small_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
+#wilcox.test(small_comp$elapsed_first_click_ms, small_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
 
 wilcox.test(big_comp$elapsed_first_click_ms, big_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
 

@@ -266,7 +266,7 @@ function checkNone(rats) {
 function checkEndpointCorrect(rats, blah){
 	var good_endp = false;
 	if (rats.includes("9")) {
-		good_ep = true;
+		good_endp = true;
 	}
 	if (blah.adj == "big"){
 		if (blah.dir == "asc") {
