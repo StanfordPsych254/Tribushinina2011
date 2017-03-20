@@ -473,10 +473,30 @@ small_comp <- d %>%
   filter(adj == "small") %>%
   filter(prototype_status == "small") 
 
-
 #wilcox.test(small_comp$elapsed_first_click_ms, small_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
 
 wilcox.test(big_comp$elapsed_first_click_ms, big_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
+
+#same test using subject means instead of raw data (which can't relly be paired and also gives errors when trials are removed so there are unequal numbers in the groups) 
+small_test <- d%>%
+  filter(adj == "small") %>%
+  filter(prototype_status != "neither") %>%
+  group_by(subid, verb, prototype_status) %>%
+  summarize(mean_rt = mean(elapsed_first_click_ms)) %>%
+  spread(prototype_status, mean_rt)
+
+wilcox.test(small_test$small, small_test$big, alternative = "g", paired = TRUE)
+
+big_test <- d%>%
+  filter(adj == "big") %>%
+  filter(prototype_status != "neither") %>%
+  group_by(subid, verb, prototype_status) %>%
+  summarize(mean_rt = mean(elapsed_first_click_ms)) %>%
+  spread(prototype_status, mean_rt)
+
+wilcox.test(big_test$big, big_test$small, alternative = "g", paired = TRUE)
+
+
 
 ```
 
