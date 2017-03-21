@@ -13,7 +13,6 @@
 *.doc
 *.jpg
 *.gif
-
 # Misc Knit Files
 *.aux
 *.gz
@@ -22,13 +21,10 @@
 *.rdb
 *.knit.md
 *cache
-
 # Other
-packrat/lib*/
 packrat/src*/
 *.httr-oauth
 *.DS_Store
-
 # MTurk credentials and data
 auth.json
 my-own-auth.json
@@ -36,7 +32,7 @@ settings.json
 mturk-and-gmail.txt
 mturk/
 pilota_results/
-
 # Specific file keep
 !README.md
 !original_paper/tribushinina-2011-Once_again_on_norms_and_comparison_classes.pdf
+.Rproj.user

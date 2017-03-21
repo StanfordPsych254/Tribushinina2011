@@ -225,8 +225,8 @@ d <- filter(d.raw, prototype_status != "na") %>%
             perc_no_endpoint = (length(is_endpoint)-sum(is_endpoint))/num_trials,
          perc_good_endpoint = (sum(good_endpoint))/num_trials) %>%
   filter(perc_non_consec < .1) %>%
-  #filter(perc_good_endpoint >.9) %>%
-  #filter(good_endpoint == TRUE) %>%
+  filter(perc_good_endpoint >.9) %>%
+  filter(good_endpoint == TRUE) %>%
   filter(non_consec == FALSE) %>%
   filter(is_endpoint == TRUE)
 for (i in 1:length(d$none_checked)) {
