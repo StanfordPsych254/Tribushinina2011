@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
   html_document:
     toc: yes
-    toc_depth: 3
+    toc_depth: 4
     toc_float:
       collapsed: false
 ---
@@ -20,11 +20,11 @@ The stimuli seen were pictures of objects. All the pictures were smaller than th
 
 
 ##Methods
-Tribushinina had 20 adults do a scalar judgment task. Participants were shown a display of seven items identical except for size, ordered by size, ranging from 1-7 cm in 1 cm increments. There were twelve items shown, four prototypically big (plane, house, elephant, hippo), four prototypically small (chick, baby, mouse, gnome), and four neither prototypically big nor prototypically small (umbrella, balloon, monkey, cake). With each display the participants heard the sentences "Which X do you find big/small" (in Dutch), and were allowed  to select as many or as few items as they wanted. The displays were either ascending (increasing in size from left to right) or descending (increasing in size from right to left). Each item was seen four times, with each adjective, and in each direction, for a total of 48 trial. Additionally there were two pretest items, to introduce the task and make people comfortable with choosing as many items as they want. The pre-trial items were "Which balloons do you find pretty" and "Which cars do you find ugly?".
+Tribushinina had 20 adults do a scalar judgment task. Participants were shown a display of seven items identical except for size, ordered by size, ranging from 1-7 cm in 1 cm increments. There were twelve items shown, four prototypically big (plane, house, elephant, hippo), four prototypically small (chick, baby, mouse, gnome), and four neither prototypically big nor prototypically small (umbrella, balloon, monkey, cake). With each display the participants heard the sentences "Which X do you find big/small" (in Dutch), and were allowed  to select as many or as few items as they wanted. The displays were either ascending (increasing in size from left to right) or descending (increasing in size from right to left). Each item was seen four times, with each adjective, and in each direction, for a total of 48 trials. Additionally there were two pretest items, to introduce the task and make people comfortable with choosing as many items as they want. The pre-trial items were "Which balloons do you find pretty" and "Which cars do you find ugly?".
 
 ###Power Analysis
 
-The original effect size was calculated using the formula for cohen's d: $\frac{m_1-m_2}{SD_{pooled}}$. The $SD_{pooled}$ was calculated using the formula $\sqrt{\frac{SD_1^2 + SD_2^2}{2}}$. 
+The original effect size was calculated using the formula for Cohen's d: $\frac{m_1-m_2}{SD_{pooled}}$. The $SD_{pooled}$ was calculated using the formula $\sqrt{\frac{SD_1^2 + SD_2^2}{2}}$. 
 ```{r}
 SD_1 = 0.9
 SD_2 = 1.3
@@ -48,7 +48,7 @@ c_d
 
 ###Planned Sample
 
-I plan to run 50 participants, native speakers of English. This status will be determined by asking each participant to enter their native language, and excluding those participants who enter something other than English. Since it is a text-box, the data may require cleanup to correct for obvious typos before processing. 
+I plan to run 50 participants. I will filter these so as to only include native speakers of English. This status will be determined by asking each participant to enter their native language, and excluding those participants who enter something other than English. Since it is a text-box, the data may require cleanup to correct for obvious typos before processing. 
 
 
 ###Materials and Procedure
@@ -102,16 +102,16 @@ conducted. The first is an analysis of the ranges dubbed *groot* 'big' and *klei
 small entities and prototype-neutral entities (offline measure). The second is an
 analysis of RTs during the scalar judgment process (online measure).
 
-I used the original materials. However, a number of manipulations were necessary. I made a couple of adaptations to the pre-test items, aligning the number of options with the rest of the experiment for ease of coding. The other adaptation I made was to the sizing of the stimuli. The original materials has a picture containing all seven images of the display. I took the biggest image of each set, made sure it was sized to 7 cm, and then decreased the size incrementally be a cm each time. The images were then also resized proportionally in the experimental display to fit the size of the participants' screens. Their size relative ot each other remains the same.
+I used the original materials. However, a number of manipulations were necessary. I made a couple of adaptations to the pre-test items, aligning the number of options with the rest of the experiment for ease of coding. The other adaptation I made was to the sizing of the stimuli. The original materials has a picture containing all seven images of the display. I took the biggest image of each set, made sure it was sized to 7 cm, and then decreased the size incrementally be a cm each time. The images were then also resized proportionally in the experimental display to fit the size of the participants' screens. Their size relative to each other remains the same.
 
 ###Procedure	
 
-The original experiment was conducted in the lab, and had people point to the pictures, and recorded their choices on video. Since my replication is being conducted on Mechanical Turk, a number of adaptations were necessaty. The first adaptation is that people click on the pictures to select them rather than point at them. This renders video collection unnecessary. Additionally, the replication uses English instead of Dutch. The effect found is predicted to be present regardless of the language. I recorded my stimuli using an automatic text-to-speech generator (https://text-to-speech-demo.mybluemix.net/), in order to preserve consistent prosody across the stimuli, as opposed to the original stimuli which were recorded by a person. I measured reaction times from the onset of the adjective until the first click on a checkbox, as opposed to the original measurment of until the first pointing move. My experiment can be found at:
+The original experiment was conducted in the lab, and had people point to the pictures, and recorded their choices on video. Since my replication is being conducted on Mechanical Turk, a number of adaptations were necessary. The first adaptation is that people click on the pictures to select them rather than point at them. This renders video collection unnecessary. Additionally, the replication uses English instead of Dutch. The effect found is predicted to be present regardless of the language. I recorded my stimuli using an automatic text-to-speech generator (https://text-to-speech-demo.mybluemix.net/), in order to preserve consistent prosody across the stimuli, as opposed to the original stimuli which were recorded by a person. I measured reaction times from the onset of the adjective until the first click on a checkbox, as opposed to the original measurement of until the first pointing move. My experiment can be found at:
 http://stanford.edu/~skessler/trib2011_rep/study1.html
 
 ###Analysis Plan
 
-The original study looked at peoples pointing gestures. Due to the clicking nature of my task, I will institute a policy regarding the possible ways people could try to game my experiment. There are two unexpected patterns to look for in the data. The first is non-continuous answer sets. If participants, in answering the question *Which balloons do you find small?* select the smallest and then the third and fourth, skipping the second balloon, this is an indication that either they were not paying attention, or that they are not doing the task. I propose to exclude all trials in which there are non-continuous answers (this seems safer than trying to guess which was the reason and filling in the seemingly missing data points),  and exclude any participant who made this mistake on more than 10% of the trials. The second unexpected pattern is answer sets with no endpoint. If a participant did not select the biggest item as *big* but did select other items, it seems possible to be caused by either off the reasons above. I thus propose a similar policy, of excluding all trials with no endpoint and excluding any participant who gave such answers for more than 10% of the trials. Neither of these exclusions are brought up in the original paper, but I think that due to the differences between the laboratory setting and the Mechanical Turk setup, safegaurds to gaming the experiment should be instituted.
+The original study looked at peoples pointing gestures. Due to the clicking nature of my task, I will institute a policy regarding the possible ways people could try to game my experiment. There are two unexpected patterns to look for in the data. The first is non-continuous answer sets. If participants, in answering the question *Which balloons do you find small?* select the smallest and then the third and fourth, skipping the second balloon, this is an indication that either they were not paying attention, or that they are not doing the task. I propose to exclude all trials in which there are non-continuous answers (this seems safer than trying to guess which was the reason and filling in the seemingly missing data points),  and exclude any participant who made this mistake on more than 10% of the trials. The second unexpected pattern is answer sets with no endpoint. If a participant did not select the biggest item as *big* but did select other items, it seems possible to be caused by either off the reasons above. I thus propose a similar policy, of excluding all trials with no endpoint and excluding any participant who gave such answers for more than 10% of the trials. Neither of these exclusions are brought up in the original paper, but I think that due to the differences between the laboratory setting and the Mechanical Turk setup, safeguards to gaming the experiment should be instituted.
 
 The key statistical test in this experiment is the Wilcoxon signed rank test showing that "the zone labeled *klein* was significantly larger than the *groot* zone: Z = 3.1, p < .005. This finding corroborates the hypothesis that subjects compute norms using, at least, two kinds of information - a contextually given comparison class (i.e., visually presented series) and their world knowledge of average object sizes in reality."
 
@@ -123,18 +123,18 @@ Finally, I will analyze the reaction times (RTs). The finding in Tribushinina (2
 do you find small? / Which mice do you find big?) took slightly longer
 than reactions to prototype-compatible questions (e.g., Which elephants do you
 find big? / Which mice do you find small?), the difference was only significant
-for *groot*: Z = 2.7, p < .05, but not for *klein*: p = .12 (Wicoxon Singed-ranks
+for *groot*: Z = 2.7, p < .05, but not for *klein*: p = .12 (Wilcoxon Singed-ranks
 test)."
 
-Additionally, Tribushinina tested whether the RTs for the adjective *small* were different than for *big*, with the prediction that the former has greater cognitive complexity and therefore should take longer to process, however no effect was found. Then she tested wheether there was an effect of scale direction and found that there was a differencee between ascending and descending trials in the case of *small* but not in the case of *big* suggesting that this might be an expression of the greater cognitive complexity of *small*.
+Additionally, Tribushinina tested whether the RTs for the adjective *small* were different than for *big*, with the prediction that the former has greater cognitive complexity and therefore should take longer to process, however no effect was found. Then she tested whether there was an effect of scale direction and found that there was a difference between ascending and descending trials in the case of *small* but not in the case of *big* suggesting that this might be an expression of the greater cognitive complexity of *small*.
 
   
 
 ###Differences from Original Study
 
-The original study was run in a laboratory setting. The participants saw the images on a screen and pointed to select. This gave them the option of not pointingg in order to seleect none. The participants were recorded in video, and the video was analyzed for the RT measures, and to code their selections.
+The original study was run in a laboratory setting. The participants saw the images on a screen and pointed to select. This gave them the option of not pointing in order to select none. The participants were recorded in video, and the video was analyzed for the RT measures, and to code their selections.
 
-My replication differs in setting. It will be conducted on Mechanical Turk. Whereas in the lab, it was known that all participants saw the same exact images, in the replication each participant has a screen of different size, so that the images might be of different actual sizes. However, the relative size of the images to each other, and the images across trials should be preserved, so it should not have an effect of the results. However, I will exclude participants who self report that they did the tasko n a mobile phone or tablet (screen_size smaller than 12 inches). The change in setting also necessitates additional exclusion criteria. Since there is no experimenter present, it is necessary to ensure that participants were not clicking at random. Additionally, since they are clicking and not pointing, it is easy to not be paying close attention, and think you clicked on an image, without it registering. Therefore, I will exclude all trials in which a no-consecutive set of images was selected, and all trials in which no endpoint was selected, or the incorrect endpoint was selelcted (e.g., if the question was which are big, and the smallest image was selected, but not the biggest). I will also exclude participants who had more than 10% of their trials excluded for any of the above three reasons.
+My replication differs in setting. It will be conducted on Mechanical Turk. Whereas in the lab, it was known that all participants saw the same exact images, in the replication each participant has a screen of different size, so that the images might be of different actual sizes. However, the relative size of the images to each other, and the images across trials should be preserved, so it should not have an effect of the results. However, I will exclude participants who self report that they did the task on a mobile phone or tablet (screen_size smaller than 12 inches). The change in setting also necessitates additional exclusion criteria. Since there is no experimenter present, it is necessary to ensure that participants were not clicking at random. Additionally, since they are clicking and not pointing, it is easy to not be paying close attention, and think you clicked on an image, without it registering. Therefore, I will exclude all trials in which a no-consecutive set of images was selected, and all trials in which no endpoint was selected, or the incorrect endpoint was selected (e.g., if the question was which are big, and the smallest image was selected, but not the biggest). I will also exclude participants who had more than 10% of their trials excluded for any of the above three reasons.
 
 
 <!-- ### Methods Addendum (Post Data Collection) -->
@@ -251,9 +251,9 @@ head(d)
 ```
 
 ### Confirmatory analysis
-
+#### Key test
 ```{r}
-#The mean zone for ezch adjective -- equivalent to Table 1
+#The mean zone for each adjective -- equivalent to Table 1
 d %>%
   group_by(verb, adj) %>%
   summarise(mean_zone = mean(num_checked), sds = sd(num_checked))
@@ -261,8 +261,9 @@ d %>%
 
 ```
 
-![Table 1 from Tribushinina, compring the mean number of items selected for each adjective](figures/trib-tab-1-mean-zones.png)
+![Table 1 from Tribushinina, comparing the mean number of items selected for each adjective](figures/trib-tab-1-mean-zones.png)
 
+The  **key test** compares the size of the *big* zone and the *small* zone:
 ```{r}
 #The key analysis -- testing whether the small zone is bigger than the big zone
 d_wilc <- d %>%
@@ -272,6 +273,7 @@ d_wilc <- d %>%
   wilcox.test(d_wilc$big, d_wilc$small, alternative = "l", paired = TRUE)
 ```
 
+####Differences between items of different prototypicality status for each adjective
 
 ```{r}
 
@@ -294,7 +296,7 @@ levels(d_graph$prototype_status)
 
 friedman.test(mean_zone ~ adj | prototype_status, data = d_graph)
 
-#create graph equivalent to figure 2 -- mena number of items labelled for each adjective for each prototypicality status
+#create graph equivalent to figure 2 -- mean number of items labeled for each adjective for each prototypicality status
 
 ggplot(d_graph, aes(x=adj, y=mean_zone, fill = prototype_status)) + geom_bar(stat = "identity", position=position_dodge()) +
     geom_errorbar(aes(ymin=mean_zone-sems, ymax=mean_zone+sems),
@@ -428,6 +430,7 @@ d_wilc_sbs <- d %>%
 wilcox.test(d_wilc_sbs$big, d_wilc_sbs$small, alternative = "l", paired = TRUE)
 ```
 
+####Reaction times by prototypicality status for each adjective
 
 ```{r}
 #create equivalent of Figure 3 -- reaction times for each adjective for each prototypicality group
