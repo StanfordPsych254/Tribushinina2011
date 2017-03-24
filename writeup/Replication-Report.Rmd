@@ -10,8 +10,6 @@ output:
       collapsed: false
 ---
 
-<!-- Replication reports should all use this template to standardize reporting across projects.  These reports will be public supplementary materials that accompany the summary report(s) of the aggregate results. -->
-
 ##Introduction
 
 Relative adjectives such as *big* and *small* are context sensitive. The sentence *Timmy is tall* might be judged as true when the context contains 4'9'' Timmy and the rest of his third grade, but false when the context contains Timmy and his three grown siblings. In these two contexts, Timmy's height is being compared to different sets of objects, known as comparison classes. While it has been established that comparison classes are determined by the context, which can manifest both linguistically and extra-linguistically, how exactly the process of forming a representation of a context class occurs, and what type of information goes into these judgments is not settled. Tribushinina (2011) argues that in forming a representation of a comparison class speakers integrate world knowledge with the information they get from the visual context in front of them, operationalized as the pictures displayed in an experimental context.
@@ -136,16 +134,20 @@ The original study was run in a laboratory setting. The participants saw the ima
 
 My replication differs in setting. It will be conducted on Mechanical Turk. Whereas in the lab, it was known that all participants saw the same exact images, in the replication each participant has a screen of different size, so that the images might be of different actual sizes. However, the relative size of the images to each other, and the images across trials should be preserved, so it should not have an effect of the results. However, I will exclude participants who self report that they did the task on a mobile phone or tablet (screen_size smaller than 12 inches). The change in setting also necessitates additional exclusion criteria. Since there is no experimenter present, it is necessary to ensure that participants were not clicking at random. Additionally, since they are clicking and not pointing, it is easy to not be paying close attention, and think you clicked on an image, without it registering. Therefore, I will exclude all trials in which a no-consecutive set of images was selected, and all trials in which no endpoint was selected, or the incorrect endpoint was selected (e.g., if the question was which are big, and the smallest image was selected, but not the biggest). I will also exclude participants who had more than 10% of their trials excluded for any of the above three reasons.
 
+My replication also differs in language. The original experiment was conducted in Dutch. However, these adjectives are very similar in the two languages, and the theory does not predict that there should be any difference with respect to  the effect under investigation.
 
-<!-- ### Methods Addendum (Post Data Collection) -->
 
-<!-- You can comment this section out prior to final report with data collection. -->
+### Methods Addendum (Post Data Collection)
 
-<!-- #### Actual Sample -->
-<!--   Sample size, demographics, data exclusions based on rules spelled out in analysis plan -->
+I did not change any of the methods between piloting and data collection. However, I did catch a javascript bug where when the participant selected the option that none of the pictures were *big/small* the endpoint wasn't being saved, and therefore the function to check if the endpoint was good wasn't working. Therefore in pilot B I did not filter out participants by whether they marked a good endpoint. Additionally, since there weren't very many participants for pilot B I did not separate out the results for the different verbs. The results reported here are only for the verb *find* ('Which Xs do you find big/small'), which is the closest English equivalent of the original Dutch question.
 
-<!-- #### Differences from pre-data collection methods plan -->
-<!--   Any differences from what was described as the original plan, or “none”. -->
+#### Actual Sample
+With the filtering conditions set up the way they were, I ended up with an n = 35. This is substantially less than the planned n = 50, but still higher than the original study and sufficiently powered.
+
+#### Differences from pre-data collection methods plan 
+ I added code to correct an unpredicted typo of "Ebglish" for "English", so that that participant was not excluded. The participants that entered "e" for their native language, as well as the one who entered "yes" were excluded. 
+ 
+ I also found a copy-paste error in the Wilcoxon tests testing the difference between the mean number of items checked for each pair of prototypicality statuses with the adjective "small" I was testing whether the zone for prototypically small items was bigger than the zone for neutral or big items, when actually I intended to test the other direction, which would match what Tribushinina predicted and found. This was corrected in the analysis code during data analysis.
 
 
 ##Results
@@ -212,12 +214,25 @@ length(unique(d.raw$subid))
 num_trials = 48
 
 #### Data exclusion / filtering
+```
 
+###Cleaning up unpredicted typos
+```{r}
+table(as.factor(d.raw$language))
+for (i in 1:length(d.raw$language)) {
+   if (d.raw$language[i] == "ebglish" & (!is.na(d.raw$language[i]))){
+   d.raw$language[i] = "english"
+   }
+ }
+```
+###planned exclusions
+
+```{r}
 # get rid of training items, exclude non-English speakers, exclude those described below
 
 d <- filter(d.raw, prototype_status != "na") %>%
-  #filter(verb == "find") %>%
-  filter(as.numeric(screen_size) >= 12) %>%
+  filter(verb == "find") %>%
+  #filter(as.numeric(screen_size) >= 12) %>%
   filter(str_detect(language, 'eng')) %>%
   select(-language) %>%
   group_by(subid) %>%
@@ -235,7 +250,7 @@ for (i in 1:length(d$none_checked)) {
    }
  }
 
-
+length(unique(d$workerid))
 #for pilot A
 # d <- filter(d.raw, prototype_status != "na") %>%
 #   group_by(subid) %>%
@@ -254,11 +269,11 @@ head(d)
 #### Key test
 ```{r}
 #The mean zone for each adjective -- equivalent to Table 1
-d %>%
+zones_table <- d %>%
   group_by(verb, adj) %>%
   summarise(mean_zone = mean(num_checked), sds = sd(num_checked))
 
-
+zones_table
 ```
 
 ![Table 1 from Tribushinina, comparing the mean number of items selected for each adjective](figures/trib-tab-1-mean-zones.png)
@@ -272,6 +287,8 @@ d_wilc <- d %>%
   spread(adj, zone)
   wilcox.test(d_wilc$big, d_wilc$small, alternative = "l", paired = TRUE)
 ```
+
+This experiment succeeded in replicating the key result from Tribushinina (2011). The mean number of items checked as *small* was significantly larger than the mean number of items checked as *big*.
 
 ####Differences between items of different prototypicality status for each adjective
 
@@ -310,8 +327,10 @@ ggplot(d_graph, aes(x=adj, y=mean_zone, fill = prototype_status)) + geom_bar(sta
 
 ![Original graph of mean number of items checked for each adjective for each prototypicality group](figures/trib-fig-2.png)
 
+This experiment succeeded in replicating the finding from Tribushinina (2011) that the *big* zone was bigger for prototypically small items than for prototypically big items or neutral items. Similarly, the *small* zone was found to be bigger for prototypically big items than for prototypically small items or neutral items.
+
 ```{r}
-# Friedman test of differences between objectss of different prototypicality status when the adjective is big
+# Friedman test of differences between objects of different prototypicality status when the adjective is big
 d_fried <- d %>%
   filter(adj=="big")%>%
   group_by(subid, prototype_status) %>%
@@ -403,7 +422,7 @@ d_wilc_sbn <- d %>%
   summarise(zone = mean(num_checked))%>%
   spread(prototype_status, zone)
 
-wilcox.test(d_wilc_sbn$big, d_wilc_sbn$neither, alternative = "l", paired = TRUE)
+wilcox.test(d_wilc_sbn$big, d_wilc_sbn$neither, alternative = "g", paired = TRUE)
 ```
 
 ```{r}
@@ -415,7 +434,7 @@ d_wilc_sns <- d %>%
   summarise(zone = mean(num_checked))%>%
   spread(prototype_status, zone)
 
-wilcox.test(d_wilc_sns$neither, d_wilc_sns$small, alternative = "l", paired = TRUE)
+wilcox.test(d_wilc_sns$neither, d_wilc_sns$small, alternative = "g", paired = TRUE)
 ```
 
 ```{r}
@@ -427,7 +446,7 @@ d_wilc_sbs <- d %>%
   summarise(zone = mean(num_checked))%>%
   spread(prototype_status, zone)
 
-wilcox.test(d_wilc_sbs$big, d_wilc_sbs$small, alternative = "l", paired = TRUE)
+wilcox.test(d_wilc_sbs$big, d_wilc_sbs$small, alternative = "g", paired = TRUE)
 ```
 
 ####Reaction times by prototypicality status for each adjective
@@ -451,11 +470,14 @@ ggplot(d_graph, aes(x=adj, y=mean_rt, fill = prototype_status)) + geom_bar(stat 
                   width=.2, position=position_dodge(.9))
 
 ggplot(d_graph, aes(x=adj, y=mean_rt, fill = prototype_status)) + geom_bar(stat = "identity", position=position_dodge()) +
+    geom_text(aes(label=round(mean_rt,2)), vjust=7, position=position_dodge(width = 1)) +
     geom_errorbar(aes(ymin=mean_rt-cis, ymax=mean_rt+cis),
                   width=.2, position=position_dodge(.9))
 ```
 
 ![Original graph of reaction times for each adjective for each prototypicality group](figures/trib-fig-3-rts.png)
+
+The reaction times that I found did not replicate the pattern found by Tribushinina. However, I have also used no exclusion criteria in examining them, and they may be overly influenced by outliers. 
 
 ```{r}
 #test the difference between RTs for prototypically big when the adjective is small and prototypically small objects when the adjective is big -- incompatible questions
@@ -478,7 +500,7 @@ small_comp <- d %>%
 
 #wilcox.test(small_comp$elapsed_first_click_ms, small_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
 
-wilcox.test(big_comp$elapsed_first_click_ms, big_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
+#wilcox.test(big_comp$elapsed_first_click_ms, big_incomp$elapsed_first_click_ms, alternative = "g", paired = TRUE)
 
 #same test using subject means instead of raw data (which can't relly be paired and also gives errors when trials are removed so there are unequal numbers in the groups) 
 small_test <- d%>%
@@ -513,6 +535,7 @@ d_rt <- d %>%
 wilcox.test(d_rt$small, d_rt$big, alternative = "g", paired = TRUE)
 ```
 
+Surprisingly, although Tribushinina found no effect of adjective on the processing time, despite the prediction that *small* is more cognitively demanding than *big*, I did find the predicted effect.
 
 ```{r}
 #test of difference between RTs on ascending and descending trials with the same adjective
@@ -534,19 +557,13 @@ wilcox.test(d_rt_big$asc, d_rt_big$desc, alternative = "l", paired = TRUE)
 ```
 
 
-
-
-
-###Exploratory analyses
-
-Any follow-up analyses desired (not required).  
-
 ## Discussion
+The main finding from Tribushinina (2011) was that the *big* zone was smaller than the *small* zone. This finding replicated. I found that the mean number of items marked *big* was `r round(zones_table[1,3], 2)` (SD = `r round(zones_table[1,4], 2)`) whereas the mean number of items marked *small* was `r round(zones_table[2,3], 2)` (SD = `r round(zones_table[2,4], 2)`). A Wilcoxon test showed that the *small* is significantly larger than the *big* zone. Additionally, the distinctions between prototypically big, prototypically small and neither items found by Tribushinina also were replicated in this experiment. However, the RT findings did not replicate in a straightforward manner. It is possible that if the data were processed more and outliers removed then the picture might be different.
 
 ### Summary of Replication Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+Overall, the replication was successful. the main findings in Tribushinina (2011) replicated nicely, despite the change in language and the change in setting.  
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
+I find it interesting that despite problematic stimuli (e.g. the picture of a house, meant to be a prototypically big item is a gingerbread house) and problematic methodology (e.g. no fillers, set up in a way that encourages the development of a strategy) the findings still replicated so nicely. This raises interesting questions regarding how people treat the visual representations given them. Is it enough that the linguistic stimulus said "Which *houses* are big?" for people to treat the images as generic houses despite the picture encouraging an interpretation of a much smaller house?
